@@ -1,0 +1,83 @@
+@{
+    ViewBag.Title = "Customer Only Service";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Customer Only Service
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">Only Customers Can Create Printing Requests</h5>
+                        <p class="mb-3">
+                            This printing service is exclusively available to customers. Based on your account type, 
+                            you do not have permission to create printing requests.
+                        </p>
+                        <hr>
+                        <p class="mb-2">
+                            <strong>Your current role:</strong> 
+                            <span class="badge bg-secondary">@ViewBag.CurrentRole</span>
+                        </p>
+                        <p class="mb-3">
+                            <strong>Available to:</strong> 
+                            <span class="badge bg-success">Customers</span>
+                        </p>
+                        
+                        @if (ViewBag.CurrentRole == "Guest" || string.IsNullOrEmpty(ViewBag.CurrentRole))
+                        {
+                            <div class="mt-3">
+                                <p>Would you like to register as a customer?</p>
+                                <a href="@Url.Action("Register", "Account", new { Role = "Customer" })" class="btn btn-primary me-2">
+                                    <i class="bi bi-person-plus me-1"></i>
+                                    Register as Customer
+                                </a>
+                                <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                    Login
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-3">
+                                <p>If you need printing services, please contact customer support or log in with a customer account.</p>
+                                <a href="@Url.Action("Index", "Home")" class="btn btn-primary me-2">
+                                    <i class="bi bi-house me-1"></i>
+                                    Return to Home
+                                </a>
+                                <a href="@Url.Action("Dashboard", "Account")" class="btn btn-outline-secondary">
+                                    <i class="bi bi-speedometer2 me-1"></i>
+                                    Go to Dashboard
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>
+                        <i class="bi bi-info-circle me-1"></i>
+                        Need help? Contact our support team for assistance.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    .badge {
+        font-size: 0.9em;
+    }
+</style>

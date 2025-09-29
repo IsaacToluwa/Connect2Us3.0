@@ -1,12 +1,15 @@
 using book2us.Models;
 using book2us.Services;
+using System;
+using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
 
 namespace book2us.Controllers
 {
-    [Authorize(Roles = "Seller")]
+    [Authorize]
     public class PrintingRequestController : Controller
     {
         private Book2UsContext db = new Book2UsContext();
@@ -27,31 +30,94 @@ namespace book2us.Controllers
         // GET: PrintingRequest/Create
         public ActionResult Create()
         {
-            ViewBag.BookId = new SelectList(db.Books.Where(b => b.SellerUserName == User.Identity.Name), "Id", "Title");
+            // Check if user is authenticated
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check if user is a customer
+            var currentUser = db.ApplicationUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Only customers can create printing requests
+            if (currentUser.Role != "Customer")
+            {
+                ViewBag.CurrentRole = currentUser.Role;
+                return View("CustomerOnly");
+            }
+
+            // No book selection needed - customers upload their own PDFs
             return View();
         }
 
         // POST: PrintingRequest/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "BookId,Quantity")] PrintingRequest printingRequest)
+        public ActionResult Create([Bind(Include = "Quantity")] PrintingRequest printingRequest, HttpPostedFileBase pdfFile)
         {
+            // Security check: verify user is a customer
+            var currentUser = db.ApplicationUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Only customers can create printing requests
+            if (currentUser.Role != "Customer")
+            {
+                ViewBag.CurrentRole = currentUser.Role;
+                return View("CustomerOnly");
+            }
+
             if (ModelState.IsValid)
             {
-                var currentUser = db.ApplicationUsers.FirstOrDefault(u => u.UserName == User.Identity.Name);
-                if (currentUser == null)
+                // Validate PDF file
+                if (pdfFile == null || pdfFile.ContentLength == 0)
                 {
-                    return RedirectToAction("Login", "Account");
+                    ModelState.AddModelError("pdfFile", "Please select a PDF file to upload.");
+                    return View(printingRequest);
                 }
+
+                if (!pdfFile.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase) && 
+                    !pdfFile.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError("pdfFile", "Please upload a valid PDF file.");
+                    return View(printingRequest);
+                }
+
+                // Save PDF file
+                string fileName = Guid.NewGuid().ToString() + "_" + pdfFile.FileName;
+                string uploadPath = Server.MapPath("~/Uploads/PrintingRequests/");
+                
+                // Create directory if it doesn't exist
+                if (!System.IO.Directory.Exists(uploadPath))
+                {
+                    System.IO.Directory.CreateDirectory(uploadPath);
+                }
+                
+                string filePath = System.IO.Path.Combine(uploadPath, fileName);
+                pdfFile.SaveAs(filePath);
+
+                // Create printing request
                 printingRequest.UserId = currentUser.Id;
                 printingRequest.RequestDate = System.DateTime.Now;
                 printingRequest.Status = "Pending";
                 db.PrintingRequests.Add(printingRequest);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+
+                // Store the PDF file path and printing request info in session for checkout
+                Session["PrintingRequestPdfPath"] = filePath;
+                Session["PrintingRequestId"] = printingRequest.PrintingRequestId;
+                Session["IsPrintingService"] = true;
+
+                // Redirect to checkout - this will handle authentication if needed
+                return RedirectToAction("Checkout", "ShoppingCart");
             }
 
-            ViewBag.BookId = new SelectList(db.Books.Where(b => b.SellerUserName == User.Identity.Name), "Id", "Title", printingRequest.BookId);
             return View(printingRequest);
         }
 
@@ -106,6 +172,12 @@ namespace book2us.Controllers
 
             TempData["SuccessMessage"] = $"Printing request status updated from '{oldStatus}' to '{status}'.";
             return RedirectToAction("Index");
+        }
+
+        // GET: PrintingRequest/TestRedirect
+        public ActionResult TestRedirect()
+        {
+            return View();
         }
     }
 }

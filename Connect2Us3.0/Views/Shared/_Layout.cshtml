@@ -30,6 +30,35 @@
                             <li>@Html.ActionLink("My Profile", "Profile", "Account", new { area = "" }, new { @class = "nav-link" })</li>
                         }
                         
+                        // Printing Services (available to all authenticated users)
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="printingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-printer"></i> Printing Services
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="printingDropdown">
+                                @if (User.IsInRole("Customer") || (!User.IsInRole("Seller") && !User.IsInRole("Employee") && !User.IsInRole("Admin")))
+                                {
+                                    <li>@Html.ActionLink("Request Printing", "Create", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("My Printing Orders", "PrintingOrders", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                }
+                                @if (User.IsInRole("Seller"))
+                                {
+                                    <li>@Html.ActionLink("Create Printing Request", "Create", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("My Printing Requests", "Index", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                }
+                                @if (User.IsInRole("Employee"))
+                                {
+                                    <li>@Html.ActionLink("Process Printing Orders", "PrintingOrders", "Employee", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Delivery Assignments", "DeliveryAssignments", "Employee", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li>@Html.ActionLink("All Printing Orders", "PrintingOrders", "Employee", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Printing Analytics", "PrintingAnalytics", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                }
+                            </ul>
+                        </li>
+                        
                         // Seller-specific navigation
                         if (User.IsInRole("Seller"))
                         {
@@ -39,7 +68,6 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="sellerDropdown">
                                     <li>@Html.ActionLink("Dashboard", "Index", "Seller", new { area = "" }, new { @class = "dropdown-item" })</li>
-                                    <li>@Html.ActionLink("Printing Requests", "Index", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
                                     <li>@Html.ActionLink("Book Orders", "Index", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>@Html.ActionLink("Manage Books", "Index", "Book", new { area = "" }, new { @class = "dropdown-item" })</li>
@@ -56,7 +84,6 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="employeeDropdown">
                                     <li>@Html.ActionLink("Dashboard", "Index", "Employee", new { area = "" }, new { @class = "dropdown-item" })</li>
-                                    <li>@Html.ActionLink("Process Requests", "Index", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
                                     <li>@Html.ActionLink("Print Orders", "Index", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
                                 </ul>
                             </li>
