@@ -1,0 +1,10 @@
+﻿namespace Connect2Us3._0.Tests;
+
+[TestClass]
+public sealed class Test1
+{
+    [TestMethod]
+    public void TestMethod1()
+    {
+    }
+}

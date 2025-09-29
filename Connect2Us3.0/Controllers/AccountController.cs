@@ -1,0 +1,62 @@
+using book2us.Models;
+using System.Linq;
+using System.Web.Mvc;
+using System.Web.Security;
+
+namespace book2us.Controllers
+{
+    public class AccountController : Controller
+    {
+        private Book2UsContext db = new Book2UsContext();
+
+        // GET: Register
+        public ActionResult Register()
+        {
+            return View();
+        }
+
+        // POST: Register
+        [HttpPost]
+        public ActionResult Register(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Users.Add(user);
+                db.SaveChanges();
+                return RedirectToAction("Login");
+            }
+
+            return View(user);
+        }
+
+        // GET: Login
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: Login
+        [HttpPost]
+        public ActionResult Login(User user)
+        {
+            var usr = db.Users.FirstOrDefault(u => u.Email == user.Email && u.Password == user.Password);
+            if (usr != null)
+            {
+                FormsAuthentication.SetAuthCookie(usr.Username, false);
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Invalid email or password.");
+                return View();
+            }
+        }
+
+        // GET: Logout
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Index", "Home");
+        }
+    }
+}

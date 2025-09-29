@@ -1,0 +1,50 @@
+@model book2us.Models.Order
+
+@{
+    ViewBag.Title = "Order Details";
+}
+
+<h2>Order Details</h2>
+
+<div>
+    <h4>Order</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OrderDate)
+        </dd>
+
+    </dl>
+
+    <h4>Order Items</h4>
+    <table class="table">
+        <tr>
+            <th>Book Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+        @foreach (var item in Model.OrderDetails.Where(od => od.Book.SellerUserName == User.Identity.Name))
+        {
+            <tr>
+                <td>@item.Book.Title</td>
+                <td>@item.Quantity</td>
+                <td>@item.Book.Price</td>
+            </tr>
+        }
+    </table>
+</div>
+<p>
+    @Html.ActionLink("Back to Orders", "Orders")
+</p>

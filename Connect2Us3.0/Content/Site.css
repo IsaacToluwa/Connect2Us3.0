@@ -1,4 +1,4 @@
-﻿/* Set padding to keep content from hitting the edges */
+/* Set padding to keep content from hitting the edges */
 .body-content {
     margin-top: 15px;
     padding-left: 15px;
@@ -17,4 +17,18 @@ input,
 select,
 textarea {
     max-width: 280px;
+}
+
+.navbar-primary {
+    background-color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
 }

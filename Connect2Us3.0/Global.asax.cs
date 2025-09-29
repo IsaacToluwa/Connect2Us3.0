@@ -1,12 +1,15 @@
-﻿using System;
+using book2us.DAL;
+using book2us.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 
-namespace Connect2Us3._0
+namespace book2us
 {
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -16,6 +19,7 @@ namespace Connect2Us3._0
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            Database.SetInitializer(new Book2UsInitializer());
         }
     }
 }

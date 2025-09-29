@@ -1,5 +1,5 @@
-﻿using Connect2Us3._0;
-using Connect2Us3._0.Controllers;
+using book2us;
+using book2us.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 
-namespace Connect2Us3._0.Tests.Controllers
+namespace book2us.Tests.Controllers
 {
     [TestClass]
     public class HomeControllerTest

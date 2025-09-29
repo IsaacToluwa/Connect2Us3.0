@@ -1,0 +1,25 @@
+@model book2us.Models.Wallet
+
+@{
+    ViewBag.Title = "Wallet";
+}
+
+<h2>Wallet</h2>
+
+<div>
+    <h4>Your Balance</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Balance
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Balance)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Add Funds", "AddFunds")
+</p>

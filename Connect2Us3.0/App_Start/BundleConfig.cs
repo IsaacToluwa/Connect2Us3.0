@@ -1,7 +1,7 @@
-﻿using System.Web;
+using System.Web;
 using System.Web.Optimization;
 
-namespace Connect2Us3._0
+namespace book2us
 {
     public class BundleConfig
     {
