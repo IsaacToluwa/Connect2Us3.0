@@ -1,7 +1,10 @@
+<<<<<<< Updated upstream:Connect2Us3.0/Connect2Us3.0.sln
 ﻿
+=======
+>>>>>>> Stashed changes:Connect2Us3.0/book2us.sln
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect2Us3.0", "Connect2Us3.0.csproj", "{A3957519-1B37-46DC-94E1-D519BE5A8BA5}"
 EndProject
