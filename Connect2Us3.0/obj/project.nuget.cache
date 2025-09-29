@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "EaOrJZ0I4Qo=",
+  "dgSpecHash": "O7VYPPOeAe8=",
   "success": true,
-  "projectFilePath": "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
+  "projectFilePath": "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\thula\\.nuget\\packages\\entityframework\\6.5.1\\entityframework.6.5.1.nupkg.sha512",
     "C:\\Users\\thula\\.nuget\\packages\\microsoft.aspnet.mvc\\5.2.9\\microsoft.aspnet.mvc.5.2.9.nupkg.sha512",

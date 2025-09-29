@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj": {}
+    "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj": {}
   },
   "projects": {
-    "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj": {
+    "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
+        "projectUniqueName": "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
         "projectName": "EmailTest",
-        "projectPath": "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
+        "projectPath": "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
         "packagesPath": "C:\\Users\\thula\\.nuget\\packages\\",
-        "outputPath": "c:\\Connect2Us3.0\\Connect2Us3.0\\obj\\",
+        "outputPath": "C:\\Connect2Us3.0\\Connect2Us3.0\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -84,6 +84,9 @@
         }
       },
       "runtimes": {
+        "win": {
+          "#import": []
+        },
         "win-x86": {
           "#import": []
         }

@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = book2us
-build_property.ProjectDir = c:\Connect2Us3.0\Connect2Us3.0\
+build_property.ProjectDir = C:\Connect2Us3.0\Connect2Us3.0\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

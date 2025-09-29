@@ -217,6 +217,198 @@
         }
       }
     },
+    ".NETFramework,Version=v4.7.2/win": {
+      "EntityFramework/6.5.1": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.ComponentModel.DataAnnotations"
+        ],
+        "compile": {
+          "lib/net45/EntityFramework.SqlServer.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/EntityFramework.dll": {
+            "related": ".SqlServer.xml;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net45/EntityFramework.SqlServer.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/EntityFramework.dll": {
+            "related": ".SqlServer.xml;.xml"
+          }
+        },
+        "build": {
+          "buildTransitive/EntityFramework.props": {},
+          "buildTransitive/EntityFramework.targets": {}
+        }
+      },
+      "Microsoft.AspNet.Mvc/5.2.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNet.Razor": "[3.2.9, 3.3.0)",
+          "Microsoft.AspNet.WebPages": "[3.2.9, 3.3.0)"
+        },
+        "compile": {
+          "lib/net45/System.Web.Mvc.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net45/System.Web.Mvc.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Microsoft.AspNet.Razor/3.2.9": {
+        "type": "package",
+        "compile": {
+          "lib/net45/System.Web.Razor.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net45/System.Web.Razor.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Microsoft.AspNet.WebPages/3.2.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNet.Razor": "[3.2.9, 3.3.0)",
+          "Microsoft.Web.Infrastructure": "1.0.0"
+        },
+        "compile": {
+          "lib/net45/System.Web.Helpers.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.Deployment.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.Razor.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.dll": {
+            "related": ".Deployment.xml;.Razor.xml;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net45/System.Web.Helpers.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.Deployment.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.Razor.dll": {
+            "related": ".xml"
+          },
+          "lib/net45/System.Web.WebPages.dll": {
+            "related": ".Deployment.xml;.Razor.xml;.xml"
+          }
+        }
+      },
+      "Microsoft.Web.Infrastructure/2.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net40/Microsoft.Web.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Microsoft.Web.Infrastructure.dll": {}
+        }
+      },
+      "Newtonsoft.Json/13.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Configuration.ConfigurationManager/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Security.Permissions": "6.0.0"
+        },
+        "frameworkAssemblies": [
+          "System.Configuration"
+        ],
+        "compile": {
+          "lib/net461/System.Configuration.ConfigurationManager.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "runtimes/win/lib/net461/System.Configuration.ConfigurationManager.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Security.AccessControl/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Security.Principal.Windows": "5.0.0"
+        },
+        "compile": {
+          "lib/net461/System.Security.AccessControl.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "runtimes/win/lib/net461/System.Security.AccessControl.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Security.Permissions/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Security.AccessControl": "6.0.0"
+        },
+        "frameworkAssemblies": [
+          "System.Configuration",
+          "System.Data.OracleClient",
+          "System.Net",
+          "System.Security",
+          "System.ServiceProcess",
+          "System.Transactions",
+          "WindowsBase"
+        ],
+        "compile": {
+          "lib/net461/System.Security.Permissions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "runtimes/win/lib/net461/System.Security.Permissions.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Security.Principal.Windows/5.0.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "mscorlib"
+        ],
+        "compile": {
+          "ref/net461/System.Security.Principal.Windows.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "runtimes/win/lib/net461/System.Security.Principal.Windows.dll": {
+            "related": ".xml"
+          }
+        }
+      }
+    },
     ".NETFramework,Version=v4.7.2/win-x86": {
       "EntityFramework/6.5.1": {
         "type": "package",
@@ -729,11 +921,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
+      "projectUniqueName": "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
       "projectName": "EmailTest",
-      "projectPath": "c:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
+      "projectPath": "C:\\Connect2Us3.0\\Connect2Us3.0\\EmailTest.csproj",
       "packagesPath": "C:\\Users\\thula\\.nuget\\packages\\",
-      "outputPath": "c:\\Connect2Us3.0\\Connect2Us3.0\\obj\\",
+      "outputPath": "C:\\Connect2Us3.0\\Connect2Us3.0\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -806,6 +998,9 @@
       }
     },
     "runtimes": {
+      "win": {
+        "#import": []
+      },
       "win-x86": {
         "#import": []
       }
