@@ -1,0 +1,103 @@
+@model IEnumerable<book2us.Models.Order>
+
+@{
+    ViewBag.Title = "Printing Orders";
+}
+
+<h2>Printing Orders</h2>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        @Html.ActionLink("All Orders", "Index", null, new { @class = "btn btn-outline-primary" })
+        @Html.ActionLink("Delivery Assignments", "DeliveryAssignments", null, new { @class = "btn btn-outline-success" })
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Order Date</th>
+            <th>Status</th>
+            <th>Fulfillment</th>
+            <th>Pages</th>
+            <th>Total</th>
+            <th>Assigned To</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.FirstName @item.LastName</td>
+                <td>@item.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    @switch (item.PrintingStatus)
+                    {
+                        case "Requested":
+                            <span class="badge bg-warning">Requested</span>
+                            break;
+                        case "Processing":
+                            <span class="badge bg-info">Processing</span>
+                            break;
+                        case "Ready":
+                            <span class="badge bg-primary">Ready</span>
+                            break;
+                        case "Delivered":
+                            <span class="badge bg-success">Delivered</span>
+                            break;
+                        case "PickedUp":
+                            <span class="badge bg-success">Picked Up</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@item.PrintingStatus</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    @if (item.FulfillmentMethod == "Delivery")
+                    {
+                        <span class="text-primary">📦 Delivery</span>
+                    }
+                    else
+                    {
+                        <span class="text-success">🏪 Pickup</span>
+                    }
+                </td>
+                <td>@item.TotalPages</td>
+                <td>R@(item.Total + item.PrintingCharge + item.DeliveryCharge)</td>
+                <td>@(item.AssignedEmployee?.UserName ?? "Not Assigned")</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-sm btn-info" })
+                        @Html.ActionLink("Update Status", "UpdatePrintingStatus", new { id = item.Id }, new { @class = "btn btn-sm btn-primary" })
+                        
+                        @if (item.PrintingStatus == "Processing")
+                        {
+                            @Html.ActionLink("Mark Ready", "MarkAsReady", new { id = item.Id }, new { @class = "btn btn-sm btn-success", onclick = "return confirm('Mark this order as Ready for Delivery/Pickup?');" })
+                        }
+                        
+                        @if (item.PrintingStatus == "Ready" && item.FulfillmentMethod == "Pickup")
+                        {
+                            using (Html.BeginForm("MarkAsPickedUp", "Employee", new { id = item.Id }, FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Confirm pickup for this order?');">Mark Picked Up</button>
+                            }
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .badge {
+        font-size: 0.8em;
+        padding: 0.25em 0.4em;
+    }
+</style>

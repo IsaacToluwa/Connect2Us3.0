@@ -1,32 +1,312 @@
+@model book2us.Models.Wallet
+
 @{
     ViewBag.Title = "Add Funds";
+    var bankAccounts = ViewBag.BankAccounts as List<book2us.Models.BankAccount>;
+    var cardDetails = ViewBag.CardDetails as List<book2us.Models.CardDetails>;
 }
 
 <h2>Add Funds</h2>
 
-@using (Html.BeginForm()) 
-{
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Enter the amount to add to your wallet</h4>
-        <hr />
-        
+<div class="add-funds-container">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @using (Html.BeginForm("AddFunds", "Wallet", FormMethod.Post, new { @class = "add-funds-form" }))
+    {
+        @Html.AntiForgeryToken()
+
         <div class="form-group">
-            <label class="control-label col-md-2" for="amount">Amount</label>
-            <div class="col-md-10">
-                <input type="number" name="amount" min="0.01" step="0.01" class="form-control" />
+            <label for="amount">Amount to Add</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">$</span>
+                </div>
+                <input type="number" class="form-control" id="amount" name="amount" 
+                       step="0.01" min="1" max="10000" required
+                       placeholder="Enter amount (min $1)">
             </div>
+            <small class="form-text text-muted">Minimum amount: $1.00, Maximum: $10,000.00</small>
         </div>
 
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Add" class="btn btn-default" />
+            <label>Payment Method</label>
+            <div class="payment-methods">
+                @if (cardDetails != null && cardDetails.Count > 0)
+                {
+                    <div class="payment-method-option">
+                        <input type="radio" id="paymentCard" name="paymentMethod" value="CreditCard" 
+                               onclick="togglePaymentFields('card')" checked>
+                        <label for="paymentCard" class="payment-method-label">
+                            <i class="fas fa-credit-card"></i> Credit/Debit Card
+                        </label>
+                    </div>
+                }
+                
+                @if (bankAccounts != null && bankAccounts.Count > 0)
+                {
+                    <div class="payment-method-option">
+                        <input type="radio" id="paymentBank" name="paymentMethod" value="BankTransfer" 
+                               onclick="togglePaymentFields('bank')" @(cardDetails == null || cardDetails.Count == 0 ? "checked" : "")>
+                        <label for="paymentBank" class="payment-method-label">
+                            <i class="fas fa-university"></i> Bank Transfer
+                        </label>
+                    </div>
+                }
             </div>
         </div>
-    </div>
-}
 
-<div>
-    @Html.ActionLink("Back to Wallet", "Index")
+        <div id="cardPaymentFields" class="payment-fields">
+            @if (cardDetails != null && cardDetails.Count > 0)
+            {
+                <div class="form-group">
+                    <label for="cardId">Select Card</label>
+                    <select class="form-control" id="cardId" name="cardId">
+                        @foreach (var card in cardDetails)
+                        {
+                            <option value="@card.CardId">
+                                @card.CardType ending in @card.LastFourDigits 
+                                (Expires: @card.ExpiryMonth/@card.ExpiryYear)
+                                @(card.IsDefault ? " - Default" : "")
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No saved cards found. You can add a card during checkout or 
+                    <a href="@Url.Action("AddCard", "Banking")" class="alert-link">add one here</a>.
+                </div>
+            }
+        </div>
+
+        <div id="bankPaymentFields" class="payment-fields" style="display: none;">
+            @if (bankAccounts != null && bankAccounts.Count > 0)
+            {
+                <div class="form-group">
+                    <label for="bankAccountId">Select Bank Account</label>
+                    <select class="form-control" id="bankAccountId" name="bankAccountId">
+                        @foreach (var account in bankAccounts)
+                        {
+                            <option value="@account.BankAccountId">
+                                @account.BankName - @account.AccountType - 
+                                ****@account.AccountNumber.Substring(Math.Max(0, account.AccountNumber.Length - 4))
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No bank accounts found. You can 
+                    <a href="@Url.Action("AddBankAccount", "Banking")" class="alert-link">add a bank account</a> first.
+                </div>
+            }
+        </div>
+
+        <div class="payment-info">
+            <h5>Payment Information</h5>
+            <div class="info-item">
+                <span>Processing Fee:</span>
+                <span>None for wallet top-ups</span>
+            </div>
+            <div class="info-item">
+                <span>Processing Time:</span>
+                <span>Instant for cards, 1-3 business days for bank transfers</span>
+            </div>
+            <div class="info-item">
+                <span>Minimum Amount:</span>
+                <span>$1.00</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-plus"></i> Add Funds
+            </button>
+            <a href="@Url.Action("Index", "Wallet")" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    }
 </div>
+
+<style>
+    .add-funds-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .add-funds-form {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        font-weight: bold;
+    }
+
+    .payment-methods {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .payment-method-option {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-method-option:hover {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+
+    .payment-method-option input[type="radio"] {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+
+    .payment-method-option input[type="radio"]:checked + label {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .payment-method-label {
+        margin: 0;
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+    .payment-method-label i {
+        margin-right: 8px;
+        font-size: 1.2em;
+    }
+
+    .payment-fields {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 4px solid #007bff;
+    }
+
+    .payment-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .payment-info h5 {
+        margin-bottom: 15px;
+        color: #495057;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1.1em;
+    }
+
+    .alert {
+        margin-bottom: 20px;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script>
+        function togglePaymentFields(type) {
+            if (type === 'card') {
+                document.getElementById('cardPaymentFields').style.display = 'block';
+                document.getElementById('bankPaymentFields').style.display = 'none';
+            } else {
+                document.getElementById('cardPaymentFields').style.display = 'none';
+                document.getElementById('bankPaymentFields').style.display = 'block';
+            }
+        }
+
+        $(document).ready(function() {
+            // Form validation
+            $('form').on('submit', function(e) {
+                var amount = parseFloat($('#amount').val());
+                var paymentMethod = $('input[name="paymentMethod"]:checked').val();
+                
+                if (!amount || amount < 1) {
+                    e.preventDefault();
+                    alert('Please enter a valid amount (minimum $1.00)');
+                    return false;
+                }
+
+                if (paymentMethod === 'CreditCard') {
+                    if (!$('#cardId').val()) {
+                        e.preventDefault();
+                        alert('Please select a card or add a new card.');
+                        return false;
+                    }
+                } else if (paymentMethod === 'BankTransfer') {
+                    if (!$('#bankAccountId').val()) {
+                        e.preventDefault();
+                        alert('Please select a bank account or add a new bank account.');
+                        return false;
+                    }
+                }
+
+                return confirm('Are you sure you want to add $' + amount.toFixed(2) + ' to your wallet?');
+            });
+        });
+    </script>
+}

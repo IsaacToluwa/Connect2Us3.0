@@ -6,6 +6,14 @@
 
 <h2>Printing Requests</h2>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -26,7 +34,7 @@
         <th>
             @Html.DisplayNameFor(model => model.RequestDate)
         </th>
-        <th></th>
+        <th>Actions</th>
     </tr>
 
 @foreach (var item in Model) {
@@ -45,6 +53,13 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.RequestDate)
+        </td>
+        <td>
+            @Html.ActionLink("Details", "Details", new { id = item.PrintingRequestId }, new { @class = "btn btn-info btn-sm" })
+            @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+            {
+                @Html.ActionLink("Update Status", "UpdateStatus", new { id = item.PrintingRequestId }, new { @class = "btn btn-warning btn-sm ms-1" })
+            }
         </td>
     </tr>
 }

@@ -1,0 +1,72 @@
+@model IEnumerable<book2us.Models.Order>
+
+@{
+    ViewBag.Title = "Delivery Assignments";
+}
+
+<h2>My Delivery Assignments</h2>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        @Html.ActionLink("All Printing Orders", "PrintingOrders", null, new { @class = "btn btn-outline-primary" })
+        @Html.ActionLink("All Orders", "Index", null, new { @class = "btn btn-outline-secondary" })
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>No Delivery Assignments</h4>
+        <p>You currently have no delivery assignments.</p>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Order #@item.Id</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Ready for Delivery</h6>
+                        
+                        <dl class="row mb-3">
+                            <dt class="col-sm-5">Customer:</dt>
+                            <dd class="col-sm-7">@item.FirstName @item.LastName</dd>
+                            
+                            <dt class="col-sm-5">Phone:</dt>
+                            <dd class="col-sm-7">@item.Phone</dd>
+                            
+                            <dt class="col-sm-5">Address:</dt>
+                            <dd class="col-sm-7">@item.Address</dd>
+                            
+                            <dt class="col-sm-5">City:</dt>
+                            <dd class="col-sm-7">@item.City, @item.State @item.PostalCode</dd>
+                            
+                            <dt class="col-sm-5">Pages:</dt>
+                            <dd class="col-sm-7">@item.TotalPages</dd>
+                            
+                            <dt class="col-sm-5">Ready Since:</dt>
+                            <dd class="col-sm-7">@item.ReadyForDeliveryDate?.ToString("yyyy-MM-dd HH:mm")</dd>
+                        </dl>
+                        
+                        <div class="d-flex justify-content-between">
+                            @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-info btn-sm" })
+                            
+                            using (Html.BeginForm("MarkAsDelivered", "Employee", new { id = item.Id }, FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Confirm delivery for Order #@item.Id?');">
+                                    ✓ Mark Delivered
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

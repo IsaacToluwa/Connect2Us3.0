@@ -1,0 +1,172 @@
+@model book2us.Models.User
+
+@{
+    ViewBag.Title = "My Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                    {
+                        <img src="@Model.ProfilePicture" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;" alt="Profile Picture" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                    }
+                    <h5 class="card-title mt-3">@Model.Username</h5>
+                    <p class="text-muted mb-1">@Model.Role</p>
+                    @if (!string.IsNullOrEmpty(Model.FirstName) || !string.IsNullOrEmpty(Model.LastName))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.FirstName @Model.LastName</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Email))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.Email</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Phone))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.Phone</small></p>
+                    }
+                    @if (Model.Age.HasValue)
+                    {
+                        <p class="text-muted mb-1"><small>Age: @Model.Age</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Gender))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.Gender</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Address))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.Address</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.City) || !string.IsNullOrEmpty(Model.State))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.City, @Model.State @Model.PostalCode</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Country))
+                    {
+                        <p class="text-muted mb-1"><small>@Model.Country</small></p>
+                    }
+                    <hr>
+                    <div class="d-grid gap-2">
+                        @Html.ActionLink("Edit Profile", "Profile", "Account", null, new { @class = "btn btn-outline-primary" })
+                        @Html.ActionLink("My Orders", "Index", "Order", null, new { @class = "btn btn-outline-secondary" })
+                        @Html.ActionLink("My Wallet", "Index", "Wallet", null, new { @class = "btn btn-outline-success" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Total Orders</h6>
+                                    <h3 class="mb-0">12</h3>
+                                </div>
+                                <i class="bi bi-cart4 fs-1 opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Wallet Balance</h6>
+                                    <h3 class="mb-0">$250.00</h3>
+                                </div>
+                                <i class="bi bi-wallet2 fs-1 opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Active Listings</h6>
+                                    <h3 class="mb-0">5</h3>
+                                </div>
+                                <i class="bi bi-book fs-1 opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clock-history"></i> Recent Activity
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Order #1234 - "Introduction to Programming"</h6>
+                                        <small class="text-muted">2 days ago</small>
+                                    </div>
+                                    <p class="mb-1">Status: Delivered</p>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Wallet Deposit - $50.00</h6>
+                                        <small class="text-muted">3 days ago</small>
+                                    </div>
+                                    <p class="mb-1">Status: Completed</p>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">New Listing - "Data Structures Book"</h6>
+                                        <small class="text-muted">5 days ago</small>
+                                    </div>
+                                    <p class="mb-1">Status: Active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (User.IsInRole("Seller"))
+            {
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-graph-up"></i> Seller Dashboard
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        @Html.ActionLink("Manage Listings", "Index", "Seller", null, new { @class = "btn btn-outline-primary w-100 mb-2" })
+                                    </div>
+                                    <div class="col-md-6">
+                                        @Html.ActionLink("Printing Requests", "Index", "PrintingRequest", null, new { @class = "btn btn-outline-info w-100 mb-2" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

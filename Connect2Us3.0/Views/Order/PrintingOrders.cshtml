@@ -1,0 +1,94 @@
+@model IEnumerable<book2us.Models.Order>
+
+@{
+    ViewBag.Title = "My Printing Orders";
+}
+
+<h2>My Printing Orders</h2>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        @Html.ActionLink("All Orders", "Index", null, new { @class = "btn btn-outline-primary" })
+        @Html.ActionLink("Order History", "OrderHistory", null, new { @class = "btn btn-outline-secondary" })
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Status</th>
+            <th>Fulfillment</th>
+            <th>Pages</th>
+            <th>Printing Cost</th>
+            <th>Delivery Cost</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    @switch (item.PrintingStatus)
+                    {
+                        case "Requested":
+                            <span class="badge bg-warning">Requested</span>
+                            break;
+                        case "Processing":
+                            <span class="badge bg-info">Processing</span>
+                            break;
+                        case "Ready":
+                            <span class="badge bg-primary">Ready</span>
+                            break;
+                        case "Delivered":
+                            <span class="badge bg-success">Delivered</span>
+                            break;
+                        case "PickedUp":
+                            <span class="badge bg-success">Picked Up</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@item.PrintingStatus</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    @if (item.FulfillmentMethod == "Delivery")
+                    {
+                        <span class="text-primary">📦 Delivery</span>
+                    }
+                    else
+                    {
+                        <span class="text-success">🏪 Pickup</span>
+                    }
+                </td>
+                <td>@item.TotalPages</td>
+                <td>R@item.PrintingCharge</td>
+                <td>R@item.DeliveryCharge</td>
+                <td>R@(item.Total + item.PrintingCharge + item.DeliveryCharge)</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-sm btn-info" })
+                        @Html.ActionLink("Track", "TrackOrder", new { id = item.Id }, new { @class = "btn btn-sm btn-primary" })
+                        
+                        @if (item.PrintingStatus == "Ready" && item.FulfillmentMethod == "Pickup")
+                        {
+                            <span class="badge bg-warning">Ready for Pickup</span>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .badge {
+        font-size: 0.8em;
+        padding: 0.25em 0.4em;
+    }
+</style>

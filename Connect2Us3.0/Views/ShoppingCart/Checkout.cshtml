@@ -15,6 +15,67 @@
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
+        @if (ViewBag.IsPrintingService == true)
+        {
+            <div class="alert alert-info">
+                <strong>📄 Printing Service Order</strong>
+                <p>This order contains printing services. Please select your fulfillment method and provide additional details.</p>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Printing Service Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Total Pages</label>
+                        <div class="col-md-9">
+                            <input type="number" name="totalPages" class="form-control" min="1" required />
+                            <small class="text-muted">Enter the total number of pages to be printed</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Fulfillment Method</label>
+                        <div class="col-md-9">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="pickup" value="Pickup" checked>
+                                <label class="form-check-label" for="pickup">
+                                    🏪 Pickup - Free (Pick up at our store location)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="delivery" value="Delivery">
+                                <label class="form-check-label" for="delivery">
+                                    📦 Delivery - R10.00 (Delivered to your address)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Pricing:</strong><br />
+                        • Printing: R3.00 per page<br />
+                        • Delivery: R10.00 (if selected)
+                    </div>
+                    
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Estimated Printing Cost:</h6>
+                            <div id="printingCostBreakdown">
+                                <p>Pages: <span id="pagesCount">0</span> × R3.00 = R<span id="pagesCost">0.00</span></p>
+                                <p>Delivery: <span id="deliveryCost">R0.00</span></p>
+                                <hr />
+                                <p><strong>Total Printing Cost: R<span id="totalPrintingCost">0.00</span></strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="isPrintingService" value="true" />
+        }
+
         <div class="form-group">
             @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -98,3 +159,196 @@
 <div>
     @Html.ActionLink("Back to Cart", "Index")
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Debug: Log all field IDs
+            console.log('Field IDs:');
+            console.log('FirstName:', $('#FirstName').length > 0 ? 'Found' : 'Not found');
+            console.log('LastName:', $('#LastName').length > 0 ? 'Found' : 'Not found');
+            console.log('Address:', $('#Address').length > 0 ? 'Found' : 'Not found');
+            console.log('City:', $('#City').length > 0 ? 'Found' : 'Not found');
+            console.log('State:', $('#State').length > 0 ? 'Found' : 'Not found');
+            console.log('PostalCode:', $('#PostalCode').length > 0 ? 'Found' : 'Not found');
+            console.log('Country:', $('#Country').length > 0 ? 'Found' : 'Not found');
+            console.log('Phone:', $('#Phone').length > 0 ? 'Found' : 'Not found');
+            console.log('Email:', $('#Email').length > 0 ? 'Found' : 'Not found');
+            
+            // Printing service cost calculator
+            function updatePrintingCost() {
+                var pages = parseInt($('input[name="totalPages"]').val()) || 0;
+                var fulfillmentMethod = $('input[name="fulfillmentMethod"]:checked').val();
+                
+                var pagesCost = pages * 3;
+                var deliveryCost = (fulfillmentMethod === 'Delivery') ? 10 : 0;
+                var totalCost = pagesCost + deliveryCost;
+                
+                $('#pagesCount').text(pages);
+                $('#pagesCost').text(pagesCost.toFixed(2));
+                $('#deliveryCost').text('R' + deliveryCost.toFixed(2));
+                $('#totalPrintingCost').text(totalCost.toFixed(2));
+                
+                console.log('Updated printing cost:', { pages, pagesCost, deliveryCost, totalCost });
+            }
+            
+            // Setup printing service event handlers
+            if ($('input[name="totalPages"]').length > 0) {
+                $('input[name="totalPages"]').on('input', updatePrintingCost);
+                $('input[name="fulfillmentMethod"]').on('change', updatePrintingCost);
+                
+                // Initial cost calculation
+                updatePrintingCost();
+            }
+            
+            // Form validation for printing services
+            $('form').on('submit', function(e) {
+                if ($('input[name="isPrintingService"]').val() === 'true') {
+                    var pages = parseInt($('input[name="totalPages"]').val());
+                    if (!pages || pages <= 0) {
+                        alert('Please enter a valid number of pages.');
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    if (!$('input[name="fulfillmentMethod"]:checked').val()) {
+                        alert('Please select a fulfillment method.');
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+            // Store original values for comparison
+            var originalValues = {
+                firstName: $('#FirstName').val() || '',
+                lastName: $('#LastName').val() || '',
+                address: $('#Address').val() || '',
+                city: $('#City').val() || '',
+                state: $('#State').val() || '',
+                postalCode: $('#PostalCode').val() || '',
+                country: $('#Country').val() || '',
+                phone: $('#Phone').val() || '',
+                email: $('#Email').val() || ''
+            };
+            
+            console.log('Original values stored:', originalValues);
+
+            // Function to check if address has changed
+            function hasAddressChanged() {
+                var currentAddress = $('#Address').val() || '';
+                var currentCity = $('#City').val() || '';
+                var currentState = $('#State').val() || '';
+                var currentPostalCode = $('#PostalCode').val() || '';
+                var currentCountry = $('#Country').val() || '';
+                
+                console.log('Checking address changes:');
+                console.log('Address:', currentAddress, 'vs', originalValues.address, '=', currentAddress !== originalValues.address);
+                console.log('City:', currentCity, 'vs', originalValues.city, '=', currentCity !== originalValues.city);
+                console.log('State:', currentState, 'vs', originalValues.state, '=', currentState !== originalValues.state);
+                console.log('PostalCode:', currentPostalCode, 'vs', originalValues.postalCode, '=', currentPostalCode !== originalValues.postalCode);
+                console.log('Country:', currentCountry, 'vs', originalValues.country, '=', currentCountry !== originalValues.country);
+                
+                return currentAddress !== originalValues.address ||
+                       currentCity !== originalValues.city ||
+                       currentState !== originalValues.state ||
+                       currentPostalCode !== originalValues.postalCode ||
+                       currentCountry !== originalValues.country;
+            }
+
+            // Function to show update profile modal
+            function showUpdateProfileModal() {
+                var modalHtml = `
+                    <div class="modal fade" id="updateProfileModal" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update Profile Information</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>We noticed your shipping address has changed. Would you like to update your profile with this new address?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No, just this order</button>
+                                    <button type="button" class="btn btn-primary" id="updateProfileBtn">Yes, update my profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add modal to body if it doesn't exist
+                if (!$('#updateProfileModal').length) {
+                    $('body').append(modalHtml);
+                }
+
+                // Show modal
+                $('#updateProfileModal').modal('show');
+
+                // Handle update profile button click
+                $('#updateProfileBtn').off('click').on('click', function() {
+                    // Create form data with new address information
+                    var profileData = {
+                        Address: $('#Address').val(),
+                        City: $('#City').val(),
+                        State: $('#State').val(),
+                        PostalCode: $('#PostalCode').val(),
+                        Country: $('#Country').val(),
+                        FirstName: $('#FirstName').val(),
+                        LastName: $('#LastName').val(),
+                        Phone: $('#Phone').val(),
+                        Email: $('#Email').val()
+                    };
+
+                    // Make AJAX call to update profile
+                    $.ajax({
+                        url: '@Url.Action("UpdateProfileFromCheckout", "Account")',
+                        type: 'POST',
+                        data: profileData,
+                        success: function(response) {
+                            if (response.success) {
+                                alert('Profile updated successfully!');
+                                // Update original values
+                                originalValues = {
+                                    firstName: profileData.FirstName,
+                                    lastName: profileData.LastName,
+                                    address: profileData.Address,
+                                    city: profileData.City,
+                                    state: profileData.State,
+                                    postalCode: profileData.PostalCode,
+                                    country: profileData.Country,
+                                    phone: profileData.Phone,
+                                    email: profileData.Email
+                                };
+                            } else {
+                                alert('Error updating profile: ' + response.message);
+                            }
+                            $('#updateProfileModal').modal('hide');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.error('Response:', xhr.responseText);
+                            alert('Error updating profile. Please try again. Error: ' + error);
+                            $('#updateProfileModal').modal('hide');
+                        }
+                    });
+                });
+            }
+
+            // Add change listeners to address fields
+            $('#Address, #City, #State, #PostalCode, #Country').on('change', function() {
+                if (hasAddressChanged()) {
+                    showUpdateProfileModal();
+                }
+            }).on('blur', function() {
+                // Also check on blur for better user experience
+                if (hasAddressChanged()) {
+                    showUpdateProfileModal();
+                }
+            });
+        });
+    </script>
+}

@@ -14,7 +14,7 @@ namespace book2us.Controllers
         // GET: Admin
         public ActionResult Index()
         {
-            return View(db.Users.ToList());
+            return View(db.ApplicationUsers.ToList());
         }
 
         // GET: Admin/Details/5
@@ -24,7 +24,7 @@ namespace book2us.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            ApplicationUser user = db.ApplicationUsers.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -41,11 +41,11 @@ namespace book2us.Controllers
         // POST: Admin/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Username,Password,Email,Role")] User user)
+        public ActionResult Create([Bind(Include = "Id,UserName,Password,Email,Role")] ApplicationUser user)
         {
             if (ModelState.IsValid)
             {
-                db.Users.Add(user);
+                db.ApplicationUsers.Add(user);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -60,7 +60,7 @@ namespace book2us.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            ApplicationUser user = db.ApplicationUsers.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -71,7 +71,7 @@ namespace book2us.Controllers
         // POST: Admin/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Username,Password,Email,Role")] User user)
+        public ActionResult Edit([Bind(Include = "Id,UserName,Password,Email,Role")] ApplicationUser user)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace book2us.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            ApplicationUser user = db.ApplicationUsers.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -102,8 +102,8 @@ namespace book2us.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            User user = db.Users.Find(id);
-            db.Users.Remove(user);
+            ApplicationUser user = db.ApplicationUsers.Find(id);
+            db.ApplicationUsers.Remove(user);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

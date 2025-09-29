@@ -1,23 +1,47 @@
-@using Microsoft.AspNet.Identity
+@using System.Security.Claims
 
 @if (Request.IsAuthenticated)
 {
-    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { id = "logoutForm", @class = "d-none" }))
     {
-    @Html.AntiForgeryToken()
-
-    <ul class="nav navbar-nav navbar-right">
-        <li>
-            @Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
-        </li>
-        <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
-    </ul>
+        @Html.AntiForgeryToken()
     }
+    
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i>
+                <span>@Context.User.Identity.Name</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Dashboard", "Account")">
+                        <i class="bi bi-speedometer2"></i> My Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Profile", "Account")">
+                        <i class="bi bi-person-gear"></i> Edit Profile
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
 }
 else
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item me-2">
+            @Html.ActionLink("Login", "Login", "Account", null, new { @class = "btn btn-outline-light btn-sm", id = "loginLink" })
+        </li>
+        <li class="nav-item">
+            @Html.ActionLink("Register", "Register", "Account", null, new { @class = "btn btn-light btn-sm", id = "registerLink" })
+        </li>
     </ul>
 }

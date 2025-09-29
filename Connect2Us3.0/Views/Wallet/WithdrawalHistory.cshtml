@@ -1,0 +1,452 @@
+@model List<book2us.Models.WithdrawalRequest>
+
+@{
+    ViewBag.Title = "Withdrawal History";
+}
+
+<h2>Withdrawal History</h2>
+
+<div class="withdrawal-history-container">
+    <div class="history-header">
+        <h4>Your Withdrawal Requests</h4>
+        <div class="balance-summary">
+            <span class="balance-label">Available Balance:</span>
+            <span class="balance-amount">$@ViewBag.AvailableBalance</span>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="withdrawal-list">
+            @foreach (var withdrawal in Model)
+            {
+                <div class="withdrawal-item">
+                    <div class="withdrawal-header">
+                        <div class="withdrawal-info">
+                            <span class="withdrawal-date">@withdrawal.RequestedDate.ToString("MMM dd, yyyy HH:mm")</span>
+                            <span class="withdrawal-reference">Ref: #@withdrawal.WithdrawalRequestId.ToString("D6")</span>
+                        </div>
+                        <div class="withdrawal-amount-section">
+                            <span class="withdrawal-amount">-$@withdrawal.Amount.ToString("F2")</span>
+                            <span class="withdrawal-status @GetStatusClass(withdrawal.Status)">
+                                @withdrawal.Status
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="withdrawal-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Bank Account:</span>
+                            <span class="detail-value">
+                                @withdrawal.BankAccount.BankName - ****@withdrawal.BankAccount.AccountNumber.Substring(withdrawal.BankAccount.AccountNumber.Length - 4)
+                            </span>
+                        </div>
+
+                        @if (withdrawal.Fee > 0)
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Processing Fee:</span>
+                                <span class="detail-value fee-amount">$@withdrawal.Fee.ToString("F2")</span>
+                            </div>
+                        }
+
+                        <div class="detail-row">
+                            <span class="detail-label">Net Amount:</span>
+                            <span class="detail-value net-amount">$@withdrawal.NetAmount.ToString("F2")</span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(withdrawal.Notes))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Notes:</span>
+                                <span class="detail-value">@withdrawal.Notes</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(withdrawal.RejectionReason) && withdrawal.Status == book2us.Models.WithdrawalStatus.Rejected)
+                        {
+                            <div class="detail-row rejection-reason">
+                                <span class="detail-label">Rejection Reason:</span>
+                                <span class="detail-value">@withdrawal.RejectionReason</span>
+                            </div>
+                        }
+
+                        @if (withdrawal.ProcessedDate.HasValue)
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Processed Date:</span>
+                                <span class="detail-value">@withdrawal.ProcessedDate.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(withdrawal.TransactionId))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Transaction ID:</span>
+                                <span class="detail-value transaction-id">@withdrawal.TransactionId</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="withdrawal-actions">
+                        @if (withdrawal.Status == book2us.Models.WithdrawalStatus.Pending)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="cancelWithdrawal(@withdrawal.WithdrawalRequestId)">
+                                <i class="fas fa-times"></i> Cancel Request
+                            </button>
+                        }
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="viewDetails(@withdrawal.WithdrawalRequestId)">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-withdrawals">
+            <i class="fas fa-university fa-3x text-muted"></i>
+            <h4>No withdrawal requests found</h4>
+            <p>You haven't made any withdrawal requests yet.</p>
+            <a href="@Url.Action("Withdraw", "Wallet")" class="btn btn-primary">
+                <i class="fas fa-arrow-up"></i> Make a Withdrawal
+            </a>
+        </div>
+    }
+
+    <div class="history-actions">
+        <a href="@Url.Action("Index", "Wallet")" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Wallet
+        </a>
+        @if (Model != null && Model.Count > 0)
+        {
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Statement
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Cancel Withdrawal Modal -->
+<div class="modal fade" id="cancelWithdrawalModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Withdrawal Request</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this withdrawal request?</p>
+                <p class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i> This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No, Keep It</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">Yes, Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusClass(book2us.Models.WithdrawalStatus status)
+    {
+        switch (status)
+        {
+            case book2us.Models.WithdrawalStatus.Pending:
+                return "status-pending";
+            case book2us.Models.WithdrawalStatus.Approved:
+                return "status-approved";
+            case book2us.Models.WithdrawalStatus.Rejected:
+                return "status-rejected";
+            case book2us.Models.WithdrawalStatus.Processed:
+                return "status-processed";
+            case book2us.Models.WithdrawalStatus.Cancelled:
+                return "status-cancelled";
+            default:
+                return "";
+        }
+    }
+}
+
+<style>
+    .withdrawal-history-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .balance-summary {
+        text-align: right;
+    }
+
+    .balance-label {
+        display: block;
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .balance-amount {
+        display: block;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    .withdrawal-list {
+        margin-bottom: 30px;
+    }
+
+    .withdrawal-item {
+        padding: 20px;
+        margin-bottom: 15px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .withdrawal-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .withdrawal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .withdrawal-info {
+        flex: 1;
+    }
+
+    .withdrawal-date {
+        display: block;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+
+    .withdrawal-reference {
+        display: block;
+        font-size: 0.9em;
+        color: #6c757d;
+    }
+
+    .withdrawal-amount-section {
+        text-align: right;
+    }
+
+    .withdrawal-amount {
+        display: block;
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #dc3545;
+        margin-bottom: 5px;
+    }
+
+    .withdrawal-status {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-processed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-cancelled {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+
+    .withdrawal-details {
+        margin-bottom: 15px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: #6c757d;
+        min-width: 120px;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: #495057;
+        text-align: right;
+    }
+
+    .fee-amount {
+        color: #dc3545;
+    }
+
+    .net-amount {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .rejection-reason {
+        background-color: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .transaction-id {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+        color: #6c757d;
+    }
+
+    .withdrawal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .no-withdrawals {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .no-withdrawals h4 {
+        margin: 20px 0 10px 0;
+        color: #495057;
+    }
+
+    .no-withdrawals p {
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .history-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .history-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .balance-summary {
+            text-align: center;
+        }
+
+        .withdrawal-header {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .withdrawal-amount-section {
+            text-align: center;
+        }
+
+        .detail-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .detail-value {
+            text-align: left;
+        }
+
+        .withdrawal-actions {
+            flex-direction: column;
+        }
+
+        .history-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        let currentWithdrawalId = null;
+
+        function cancelWithdrawal(withdrawalId) {
+            currentWithdrawalId = withdrawalId;
+            $('#cancelWithdrawalModal').modal('show');
+        }
+
+        function viewDetails(withdrawalId) {
+            // Implementation for viewing detailed withdrawal information
+            console.log('View details for withdrawal:', withdrawalId);
+            // You can expand this to show a detailed modal or redirect to a details page
+        }
+
+        $(document).ready(function() {
+            $('#confirmCancelBtn').click(function() {
+                if (currentWithdrawalId) {
+                    // Implement cancellation logic here
+                    $.post('@Url.Action("CancelWithdrawal", "Wallet")', { withdrawalId: currentWithdrawalId })
+                        .done(function(result) {
+                            if (result.success) {
+                                location.reload();
+                            } else {
+                                alert('Error cancelling withdrawal: ' + result.message);
+                            }
+                        })
+                        .fail(function() {
+                            alert('Error cancelling withdrawal request.');
+                        });
+                }
+                $('#cancelWithdrawalModal').modal('hide');
+            });
+        });
+    </script>
+}

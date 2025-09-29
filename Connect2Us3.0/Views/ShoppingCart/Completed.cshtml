@@ -2,10 +2,118 @@
 
 @{
     ViewBag.Title = "Order Completed";
+    var order = ViewBag.Order as book2us.Models.Order;
 }
 
 <h2>Order Completed</h2>
 
-<p>Thanks for your order! Your order number is: @Model</p>
+<div class="alert alert-success">
+    <h4>🎉 Thank you for your order!</h4>
+    <p>Your order number is: <strong>@Model</strong></p>
+</div>
 
-<p>How about shopping for some more books in our @Html.ActionLink("store", "Index", "Book")</p>
+@if (order != null)
+{
+    <div class="card">
+        <div class="card-header">
+            <h5>Order Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Customer Information</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">@order.FirstName @order.LastName</dd>
+                        
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">@order.Email</dd>
+                        
+                        <dt class="col-sm-4">Phone:</dt>
+                        <dd class="col-sm-8">@order.Phone</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h6>Order Details</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Order Date:</dt>
+                        <dd class="col-sm-8">@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</dd>
+                        
+                        @if (order.IsPrintingService)
+                        {
+                            <dt class="col-sm-4">Service Type:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-info">📄 Printing Service</span></dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-warning">@order.PrintingStatus</span></dd>
+                            
+                            <dt class="col-sm-4">Fulfillment:</dt>
+                            <dd class="col-sm-8">@order.FulfillmentMethod</dd>
+                            
+                            <dt class="col-sm-4">Pages:</dt>
+                            <dd class="col-sm-8">@order.TotalPages</dd>
+                        }
+                        else
+                        {
+                            <dt class="col-sm-4">Service Type:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-secondary">📚 Book Order</span></dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+            
+            @if (order.IsPrintingService)
+            {
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Cost Breakdown</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Base Order:</td>
+                                <td>R@order.Total</td>
+                            </tr>
+                            <tr>
+                                <td>Printing (@order.TotalPages pages × R3.00):</td>
+                                <td>R@order.PrintingCharge</td>
+                            </tr>
+                            @if (order.FulfillmentMethod == "Delivery")
+                            {
+                                <tr>
+                                    <td>Delivery:</td>
+                                    <td>R@order.DeliveryCharge</td>
+                                </tr>
+                            }
+                            <tr class="table-primary">
+                                <td><strong>Total Paid:</strong></td>
+                                <td><strong>R@(order.Total + order.PrintingCharge + order.DeliveryCharge)</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6>📋 Next Steps</h6>
+                    <p>Your printing order has been received and will be processed shortly.</p>
+                    
+                    @if (order.FulfillmentMethod == "Pickup")
+                    {
+                        <p>• You will receive an email notification when your order is ready for pickup</p>
+                        <p>• Please bring your order confirmation when collecting your items</p>
+                    }
+                    else
+                    {
+                        <p>• Your order will be delivered to the address provided</p>
+                        <p>• You will receive tracking information via email</p>
+                    }
+                    
+                    <p>• Track your order status in your @Html.ActionLink("order history", "OrderHistory", "Order")</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="mt-3">
+    @Html.ActionLink("View My Orders", "Index", "Order", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Continue Shopping", "Index", "Book", null, new { @class = "btn btn-secondary" })
+</div>

@@ -1,0 +1,199 @@
+@model book2us.Models.Wallet
+
+@{
+    ViewBag.Title = "Withdraw Funds";
+    var bankAccounts = ViewBag.BankAccounts as List<book2us.Models.BankAccount>;
+}
+
+<h2>Withdraw Funds</h2>
+
+<div class="withdrawal-container">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @using (Html.BeginForm("Withdraw", "Wallet", FormMethod.Post, new { @class = "withdrawal-form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label for="amount">Withdrawal Amount</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">$</span>
+                </div>
+                <input type="number" class="form-control" id="amount" name="amount" 
+                       step="0.01" min="1" max="@Model.Balance" required
+                       placeholder="Enter amount to withdraw">
+            </div>
+            <small class="form-text text-muted">
+                Available balance: $@Model.Balance.ToString("F2")
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="bankAccountId">Select Bank Account</label>
+            @if (bankAccounts != null && bankAccounts.Count > 0)
+            {
+                <select class="form-control" id="bankAccountId" name="bankAccountId" required>
+                    <option value="">Choose a bank account...</option>
+                    @foreach (var account in bankAccounts)
+                    {
+                        <option value="@account.BankAccountId">
+                            @account.BankName - @account.AccountType - 
+                            ****@account.AccountNumber.Substring(Math.Max(0, account.AccountNumber.Length - 4))
+                        </option>
+                    }
+                </select>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No bank accounts found. Please 
+                    <a href="@Url.Action("AddBankAccount", "Banking")" class="alert-link">add a bank account</a> first.
+                </div>
+            }
+        </div>
+
+        <div class="withdrawal-info">
+            <h5>Withdrawal Information</h5>
+            <div class="info-item">
+                <span>Processing Fee:</span>
+                <span>2% (max $10.00)</span>
+            </div>
+            <div class="info-item">
+                <span>Estimated Processing Time:</span>
+                <span>1-3 business days</span>
+            </div>
+            <div class="info-item">
+                <span>Minimum Withdrawal:</span>
+                <span>$1.00</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-warning btn-lg" 
+                    @(bankAccounts == null || bankAccounts.Count == 0 ? "disabled" : "")>
+                <i class="fas fa-money-bill-wave"></i> Withdraw Funds
+            </button>
+            <a href="@Url.Action("Index", "Wallet")" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    .withdrawal-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .withdrawal-form {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        font-weight: bold;
+    }
+
+    .withdrawal-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .withdrawal-info h5 {
+        margin-bottom: 15px;
+        color: #495057;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1.1em;
+    }
+
+    .alert {
+        margin-bottom: 20px;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Validate amount doesn't exceed balance
+            $('#amount').on('input', function() {
+                var amount = parseFloat($(this).val());
+                var balance = parseFloat('@Model.Balance');
+                
+                if (amount > balance) {
+                    $(this).addClass('is-invalid');
+                    if (!$('.invalid-feedback').length) {
+                        $(this).after('<div class="invalid-feedback">Amount cannot exceed your balance</div>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+                }
+            });
+
+            // Form submission confirmation
+            $('form').on('submit', function(e) {
+                var amount = parseFloat($('#amount').val());
+                var selectedAccount = $('#bankAccountId').val();
+                
+                if (!amount || !selectedAccount) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                return confirm('Are you sure you want to withdraw $' + amount.toFixed(2) + ' from your wallet?');
+            });
+        });
+    </script>
+}

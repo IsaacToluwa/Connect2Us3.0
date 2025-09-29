@@ -1,0 +1,149 @@
+@model IEnumerable<book2us.Models.Order>
+
+@{
+    ViewBag.Title = "Order History";
+}
+
+<h2>Order History</h2>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        @Html.ActionLink("Current Orders", "Index", null, new { @class = "btn btn-outline-primary" })
+        @Html.ActionLink("Printing Orders", "PrintingOrders", null, new { @class = "btn btn-outline-info" })
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>All Orders</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Fulfillment</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@item.CustomerName</td>
+                        <td>
+                            @if (item.IsPrintingService)
+                            {
+                                <span class="badge bg-info">📄 Printing</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">📚 Book</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsPrintingService)
+                            {
+                                @switch (item.PrintingStatus)
+                                {
+                                    case "Requested":
+                                        <span class="badge bg-warning">Requested</span>
+                                        break;
+                                    case "Processing":
+                                        <span class="badge bg-info">Processing</span>
+                                        break;
+                                    case "Ready":
+                                        <span class="badge bg-primary">Ready</span>
+                                        break;
+                                    case "Delivered":
+                                        <span class="badge bg-success">Delivered</span>
+                                        break;
+                                    case "PickedUp":
+                                        <span class="badge bg-success">Picked Up</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@item.PrintingStatus</span>
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@item.Status</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsPrintingService)
+                            {
+                                @if (item.FulfillmentMethod == "Delivery")
+                                {
+                                    <span class="text-primary">📦 Delivery</span>
+                                }
+                                else
+                                {
+                                    <span class="text-success">🏪 Pickup</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>Standard</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsPrintingService)
+                            {
+                                <strong>R@(item.Total + item.PrintingCharge + item.DeliveryCharge)</strong>
+                            }
+                            else
+                            {
+                                <strong>R@item.Total</strong>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-sm btn-info" })
+                                
+                                @if (item.IsPrintingService)
+                                {
+                                    @Html.ActionLink("Track", "TrackOrder", new { id = item.Id }, new { @class = "btn btn-sm btn-primary" })
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .badge {
+        font-size: 0.8em;
+        padding: 0.25em 0.4em;
+    }
+    
+    .timeline-item {
+        border-left: 3px solid #e9ecef;
+        padding-left: 20px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 0;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #007bff;
+        border: 2px solid #fff;
+    }
+</style>

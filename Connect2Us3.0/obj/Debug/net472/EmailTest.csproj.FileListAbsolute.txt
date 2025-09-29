@@ -1,0 +1,8 @@
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.csproj.AssemblyReference.cache
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.csproj.SuggestedBindingRedirects.cache
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.exe.config
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.GeneratedMSBuildEditorConfig.editorconfig
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.AssemblyInfoInputs.cache
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.AssemblyInfo.cs
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.csproj.CoreCompileInputs.cache
+c:\Connect2Us3.0\Connect2Us3.0\obj\Debug\net472\EmailTest.sourcelink.json

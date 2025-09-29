@@ -1,0 +1,211 @@
+@model book2us.Models.Order
+
+@{
+    ViewBag.Title = "Track Order";
+}
+
+<h2>Track Order #@Model.Id</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Order Status Timeline</h4>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <!-- Requested Status -->
+                    <div class="timeline-item @(Model.PrintingStatus != null ? "completed" : "")">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h5>Order Requested</h5>
+                            <p>Your printing order has been received.</p>
+                            <small>@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Status -->
+                    <div class="timeline-item @(Model.PrintingStatus == "Processing" || Model.PrintingStatus == "Ready" || Model.PrintingStatus == "Delivered" || Model.PrintingStatus == "PickedUp" ? "completed" : "")">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h5>Processing</h5>
+                            <p>Your order is being processed and prepared for printing.</p>
+                            <small>@(Model.PrintingStatus == "Processing" || Model.PrintingStatus == "Ready" || Model.PrintingStatus == "Delivered" || Model.PrintingStatus == "PickedUp" ? Model.OrderDate.AddHours(1).ToString("yyyy-MM-dd HH:mm") : "TBD")</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Ready Status -->
+                    <div class="timeline-item @(Model.PrintingStatus == "Ready" || Model.PrintingStatus == "Delivered" || Model.PrintingStatus == "PickedUp" ? "completed" : "")">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h5>Ready for @Model.FulfillmentMethod</h5>
+                            <p>Your order is ready for @(Model.FulfillmentMethod == "Delivery" ? "delivery" : "pickup").</p>
+                            <small>@(Model.ReadyForDeliveryDate?.ToString("yyyy-MM-dd HH:mm") ?? "TBD")</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Delivered/Picked Up Status -->
+                    @if (Model.PrintingStatus == "Delivered" || Model.PrintingStatus == "PickedUp")
+                    {
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h5>@Model.FulfillmentMethod</h5>
+                                <p>Your order has been @(Model.PrintingStatus == "Delivered" ? "delivered" : "picked up").</p>
+                                <small>@(Model.DeliveryDate?.ToString("yyyy-MM-dd HH:mm") ?? "TBD")</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Order Summary</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Order ID:</dt>
+                    <dd class="col-sm-6">@Model.Id</dd>
+                    
+                    <dt class="col-sm-6">Status:</dt>
+                    <dd class="col-sm-6">
+                        @switch (Model.PrintingStatus)
+                        {
+                            case "Requested":
+                                <span class="badge bg-warning">Requested</span>
+                                break;
+                            case "Processing":
+                                <span class="badge bg-info">Processing</span>
+                                break;
+                            case "Ready":
+                                <span class="badge bg-primary">Ready</span>
+                                break;
+                            case "Delivered":
+                                <span class="badge bg-success">Delivered</span>
+                                break;
+                            case "PickedUp":
+                                <span class="badge bg-success">Picked Up</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@Model.PrintingStatus</span>
+                                break;
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-6">Fulfillment:</dt>
+                    <dd class="col-sm-6">@Model.FulfillmentMethod</dd>
+                    
+                    <dt class="col-sm-6">Pages:</dt>
+                    <dd class="col-sm-6">@Model.TotalPages</dd>
+                    
+                    @if (Model.AssignedEmployee != null)
+                    {
+                        <dt class="col-sm-6">Assigned To:</dt>
+                        <dd class="col-sm-6">@Model.AssignedEmployee.UserName</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h4>Cost Breakdown</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Base Order:</dt>
+                    <dd class="col-sm-6">R@Model.Total</dd>
+                    
+                    <dt class="col-sm-6">Printing (R3/page):</dt>
+                    <dd class="col-sm-6">R@(Model.TotalPages * 3)</dd>
+                    
+                    @if (Model.FulfillmentMethod == "Delivery")
+                    {
+                        <dt class="col-sm-6">Delivery:</dt>
+                        <dd class="col-sm-6">R10.00</dd>
+                    }
+                    
+                    <hr />
+                    
+                    <dt class="col-sm-6"><strong>Total:</strong></dt>
+                    <dd class="col-sm-6"><strong>R@(Model.Total + (Model.TotalPages * 3) + (Model.FulfillmentMethod == "Delivery" ? 10 : 0))</strong></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        @Html.ActionLink("Back to Printing Orders", "PrintingOrders", null, new { @class = "btn btn-primary" })
+        @Html.ActionLink("All Orders", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 30px;
+        opacity: 0.5;
+    }
+    
+    .timeline-item.completed {
+        opacity: 1;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #ccc;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px #ccc;
+    }
+    
+    .timeline-item.completed .timeline-marker {
+        background-color: #28a745;
+        box-shadow: 0 0 0 2px #28a745;
+    }
+    
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 9px;
+        top: 25px;
+        width: 2px;
+        height: calc(100% + 10px);
+        background-color: #ccc;
+    }
+    
+    .timeline-content h5 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .timeline-content p {
+        margin-bottom: 5px;
+        color: #666;
+    }
+    
+    .timeline-content small {
+        color: #999;
+    }
+    
+    .badge {
+        font-size: 0.9em;
+        padding: 0.25em 0.4em;
+    }
+</style>

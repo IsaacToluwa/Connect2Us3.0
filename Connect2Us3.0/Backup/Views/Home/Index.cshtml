@@ -1,0 +1,149 @@
+@{
+    ViewBag.Title = "Book2Us - Your Online Book Marketplace";
+}
+
+<main>
+    <!-- Hero Section -->
+    <section class="hero-section bg-primary text-white py-5 mb-5">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold">Welcome to Book2Us</h1>
+            <p class="lead">Discover, Buy, and Sell Books Online</p>
+            <div class="mt-4">
+                @if (!Request.IsAuthenticated)
+                {
+                    @Html.ActionLink("Get Started", "Register", "Account", null, new { @class = "btn btn-light btn-lg me-3" })
+                    @Html.ActionLink("Browse Books", "Index", "Book", null, new { @class = "btn btn-outline-light btn-lg" })
+                }
+                else
+                {
+                    @Html.ActionLink("Browse Books", "Index", "Book", null, new { @class = "btn btn-light btn-lg me-3" })
+                    @Html.ActionLink("Sell a Book", "Create", "Book", null, new { @class = "btn btn-outline-light btn-lg" })
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions mb-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="bi bi-search" style="font-size: 2rem; color: #0d6efd;"></i>
+                            </div>
+                            <h5 class="card-title">Browse Books</h5>
+                            <p class="card-text">Find your next favorite book from our extensive collection</p>
+                            @Html.ActionLink("Explore", "Index", "Book", null, new { @class = "btn btn-primary" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="bi bi-cart" style="font-size: 2rem; color: #198754;"></i>
+                            </div>
+                            <h5 class="card-title">Buy Books</h5>
+                            <p class="card-text">Purchase books securely with our easy checkout process</p>
+                            @Html.ActionLink("Shop Now", "Index", "Book", null, new { @class = "btn btn-success" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="bi bi-currency-dollar" style="font-size: 2rem; color: #ffc107;"></i>
+                            </div>
+                            <h5 class="card-title">Sell Books</h5>
+                            <p class="card-text">List your books for sale and reach thousands of buyers</p>
+                            @Html.ActionLink("Start Selling", "Create", "Book", null, new { @class = "btn btn-warning" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="bi bi-wallet2" style="font-size: 2rem; color: #dc3545;"></i>
+                            </div>
+                            <h5 class="card-title">Wallet</h5>
+                            <p class="card-text">Manage your earnings and track your sales</p>
+                            @Html.ActionLink("View Wallet", "Index", "Wallet", null, new { @class = "btn btn-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Categories -->
+    <section class="featured-categories mb-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Popular Categories</h2>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="category-card p-4 bg-light rounded text-center">
+                        <h5>Fiction</h5>
+                        <p class="text-muted">Novels, short stories, and more</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card p-4 bg-light rounded text-center">
+                        <h5>Textbooks</h5>
+                        <p class="text-muted">Educational materials for students</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card p-4 bg-light rounded text-center">
+                        <h5>Children's Books</h5>
+                        <p class="text-muted">Stories for young readers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="call-to-action bg-light py-5">
+        <div class="container text-center">
+            <h2 class="mb-3">Ready to Get Started?</h2>
+            <p class="lead mb-4">Join thousands of book lovers buying and selling on Book2Us</p>
+            @if (!Request.IsAuthenticated)
+            {
+                <div class="d-flex justify-content-center gap-3">
+                    @Html.ActionLink("Sign Up", "Register", "Account", null, new { @class = "btn btn-primary btn-lg" })
+                    @Html.ActionLink("Learn More", "About", "Home", null, new { @class = "btn btn-outline-primary btn-lg" })
+                </div>
+            }
+            else
+            {
+                @Html.ActionLink("Browse Books", "Index", "Book", null, new { @class = "btn btn-primary btn-lg" })
+            }
+        </div>
+    </section>
+</main>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+    }
+    .category-card {
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .quick-actions .card {
+        transition: transform 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .quick-actions .card:hover {
+        transform: translateY(-5px);
+    }
+</style>

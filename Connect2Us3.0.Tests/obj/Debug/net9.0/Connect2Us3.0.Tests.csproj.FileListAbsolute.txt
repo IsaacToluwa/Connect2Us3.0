@@ -1,0 +1,6 @@
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.csproj.AssemblyReference.cache
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.AssemblyInfoInputs.cache
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.AssemblyInfo.cs
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.csproj.CoreCompileInputs.cache
+C:\Connect2Us3.0\Connect2Us3.0.Tests\obj\Debug\net9.0\Connect2Us3.0.Tests.sourcelink.json
