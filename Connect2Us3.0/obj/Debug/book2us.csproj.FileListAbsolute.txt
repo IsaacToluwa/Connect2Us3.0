@@ -1,0 +1,2 @@
+C:\Connect2Us3.0\Connect2Us3.0\obj\Debug\book2us.csproj.AssemblyReference.cache
+C:\Connect2Us3.0\Connect2Us3.0\obj\Debug\book2us.csproj.CoreCompileInputs.cache

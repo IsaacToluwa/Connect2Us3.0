@@ -106,7 +106,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Connect2Us3.0\Connect2Us3.0.csproj">
+    <ProjectReference Include="..\Connect2Us3.0\book2us.csproj">
       <Project>{A3957519-1B37-46DC-94E1-D519BE5A8BA5}</Project>
       <Name>Connect2Us3.0</Name>
     </ProjectReference>
