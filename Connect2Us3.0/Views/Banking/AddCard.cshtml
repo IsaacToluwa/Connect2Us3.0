@@ -1,0 +1,393 @@
+@model book2us.Controllers.CardViewModel
+
+@{
+    ViewBag.Title = "Add Payment Card";
+}
+
+<div class="add-card-container">
+    <div class="form-header">
+        <h2><i class="fas fa-credit-card"></i> Add Payment Card</h2>
+        <p class="text-muted">Enter your card details for secure payments</p>
+    </div>
+
+    @using (Html.BeginForm("AddCard", "Banking", FormMethod.Post, new { @class = "card-form", id = "addCardForm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> Please correct the following errors:
+                @Html.ValidationSummary(false, "", new { @class = "mt-2" })
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        }
+
+        <!-- Card Preview -->
+        <div class="card-preview">
+            <div class="card-preview-inner">
+                <div class="card-logo">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="card-number-preview">**** **** **** ****</div>
+                <div class="card-details-preview">
+                    <div class="card-holder-preview">CARDHOLDER NAME</div>
+                    <div class="expiry-preview">MM/YY</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5><i class="fas fa-user"></i> Card Information</h5>
+            
+            <div class="form-group">
+                @Html.LabelFor(m => m.CardHolderName, new { @class = "form-label required" })
+                @Html.TextBoxFor(m => m.CardHolderName, new { @class = "form-control", placeholder = "Enter cardholder name as it appears on card" })
+                @Html.ValidationMessageFor(m => m.CardHolderName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CardNumber, new { @class = "form-label required" })
+                @Html.TextBoxFor(m => m.CardNumber, new { @class = "form-control", placeholder = "1234 5678 9012 3456", maxlength = "19" })
+                @Html.ValidationMessageFor(m => m.CardNumber, "", new { @class = "text-danger" })
+                <div class="card-type-icons">
+                    <i class="fab fa-cc-visa visa-color" title="Visa"></i>
+                    <i class="fab fa-cc-mastercard mastercard-color" title="MasterCard"></i>
+                    <i class="fab fa-cc-amex amex-color" title="American Express"></i>
+                    <i class="fab fa-cc-discover discover-color" title="Discover"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5><i class="fas fa-calendar-alt"></i> Expiry & Security</h5>
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.ExpiryMonth, new { @class = "form-label required" })
+                    @Html.DropDownListFor(m => m.ExpiryMonth, 
+                        new SelectList(Enumerable.Range(1, 12).Select(i => new { Value = i, Text = i.ToString("D2") }), "Value", "Text"), 
+                        "-- Month --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ExpiryMonth, "", new { @class = "text-danger" })
+                </div>
+                
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.ExpiryYear, new { @class = "form-label required" })
+                    @Html.DropDownListFor(m => m.ExpiryYear, 
+                        new SelectList(Enumerable.Range(DateTime.Now.Year, 10).Select(i => new { Value = i, Text = i.ToString() }), "Value", "Text"), 
+                        "-- Year --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ExpiryYear, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CVV, new { @class = "form-label required" })
+                <div class="cvv-input-group">
+                    @Html.TextBoxFor(m => m.CVV, new { @class = "form-control", placeholder = "123", maxlength = "4" })
+                    <button type="button" class="cvv-info-btn" data-toggle="tooltip" title="CVV is the 3-4 digit code on the back of your card">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+                @Html.ValidationMessageFor(m => m.CVV, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5><i class="fas fa-shield-alt"></i> Security & Terms</h5>
+            
+            <div class="security-notice">
+                <div class="notice-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="notice-content">
+                    <h6>Your Card Information is Secure</h6>
+                    <p>Your card details are encrypted using bank-level security and stored safely. We never store your full card number in plain text.</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="terms-checkbox">
+                    <input type="checkbox" id="termsAccepted" name="termsAccepted" required>
+                    <span class="checkmark"></span>
+                    I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="@Url.Action("Index", "Banking")" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-save"></i> Add Card
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .add-card-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .card-preview {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .card-preview-inner {
+        width: 350px;
+        height: 220px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        position: relative;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .card-logo {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        font-size: 2.5em;
+        opacity: 0.8;
+    }
+
+    .card-number-preview {
+        font-family: 'Courier New', monospace;
+        font-size: 1.4em;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-top: 80px;
+        margin-bottom: 20px;
+    }
+
+    .card-details-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .card-holder-preview {
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .expiry-preview {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+
+    .form-section {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-section h5 {
+        color: #495057;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-label.required::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .card-type-icons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        opacity: 0.6;
+    }
+
+    .card-type-icons i {
+        font-size: 1.5em;
+    }
+
+    .cvv-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cvv-input-group .form-control {
+        flex: 1;
+    }
+
+    .cvv-info-btn {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .cvv-info-btn:hover {
+        color: #0056b3;
+    }
+
+    .security-notice {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 10px;
+        border-left: 4px solid #2196f3;
+        margin-bottom: 20px;
+    }
+
+    .notice-icon {
+        font-size: 2em;
+        color: #2196f3;
+    }
+
+    .notice-content h6 {
+        margin: 0 0 5px 0;
+        color: #1565c0;
+    }
+
+    .notice-content p {
+        margin: 0;
+        color: #424242;
+        font-size: 0.9em;
+    }
+
+    .terms-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        margin-bottom: 0;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .visa-color { color: #1a1f71; }
+    .mastercard-color { color: #eb001b; }
+    .amex-color { color: #006fcf; }
+    .discover-color { color: #ff6000; }
+
+    @@media (max-width: 768px) {
+        .card-preview-inner {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Card number formatting
+            $('#CardNumber').on('input', function() {
+                let value = $(this).val().replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                $(this).val(formattedValue);
+                
+                // Update card preview
+                if (value.length >= 4) {
+                    $('.card-number-preview').text(formattedValue);
+                } else {
+                    $('.card-number-preview').text('**** **** **** ****');
+                }
+                
+                // Detect card type
+                detectCardType(value);
+            });
+
+            // Cardholder name formatting
+            $('#CardHolderName').on('input', function() {
+                let value = $(this).val().toUpperCase();
+                if (value.length > 0) {
+                    $('.card-holder-preview').text(value);
+                } else {
+                    $('.card-holder-preview').text('CARDHOLDER NAME');
+                }
+            });
+
+            // Expiry formatting
+            $('#ExpiryMonth, #ExpiryYear').on('change', function() {
+                let month = $('#ExpiryMonth').val();
+                let year = $('#ExpiryYear').val().slice(-2);
+                
+                if (month && year) {
+                    $('.expiry-preview').text(month + '/' + year);
+                } else {
+                    $('.expiry-preview').text('MM/YY');
+                }
+            });
+
+            // CVV tooltip
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Form validation
+            $('#addCardForm').on('submit', function(e) {
+                if (!$('#termsAccepted').is(':checked')) {
+                    e.preventDefault();
+                    alert('Please accept the terms and conditions to continue.');
+                    return false;
+                }
+            });
+        });
+
+        function detectCardType(cardNumber) {
+            let cardType = 'Unknown';
+            let iconClass = 'fas fa-credit-card';
+            
+            if (cardNumber.startsWith('4')) {
+                cardType = 'Visa';
+                iconClass = 'fab fa-cc-visa';
+            } else if (cardNumber.startsWith('5')) {
+                cardType = 'MasterCard';
+                iconClass = 'fab fa-cc-mastercard';
+            } else if (cardNumber.startsWith('3')) {
+                cardType = 'American Express';
+                iconClass = 'fab fa-cc-amex';
+            } else if (cardNumber.startsWith('6')) {
+                cardType = 'Discover';
+                iconClass = 'fab fa-cc-discover';
+            }
+            
+            $('.card-logo i').attr('class', iconClass + ' fa-2x');
+        }
+    </script>
+}

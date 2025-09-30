@@ -2,13 +2,13 @@
     ViewBag.Title = "Customer Only Service";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
+<div class="mt-5 container">
+    <div class="justify-content-center row">
         <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-warning text-dark">
+            <div class="shadow card">
+                <div class="bg-warning text-dark card-header">
                     <h4 class="mb-0">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <i class="me-2 bi bi-exclamation-triangle-fill"></i>
                         Customer Only Service
                     </h4>
                 </div>
@@ -22,23 +22,23 @@
                         <hr>
                         <p class="mb-2">
                             <strong>Your current role:</strong> 
-                            <span class="badge bg-secondary">@ViewBag.CurrentRole</span>
+                            <span class="bg-secondary badge">@ViewBag.CurrentRole</span>
                         </p>
                         <p class="mb-3">
                             <strong>Available to:</strong> 
-                            <span class="badge bg-success">Customers</span>
+                            <span class="bg-success badge">Customers</span>
                         </p>
                         
                         @if (ViewBag.CurrentRole == "Guest" || string.IsNullOrEmpty(ViewBag.CurrentRole))
                         {
                             <div class="mt-3">
                                 <p>Would you like to register as a customer?</p>
-                                <a href="@Url.Action("Register", "Account", new { Role = "Customer" })" class="btn btn-primary me-2">
-                                    <i class="bi bi-person-plus me-1"></i>
+                                <a href="@Url.Action("Register", "Account", new { Role = "Customer" })" class="me-2 btn btn-primary">
+                                    <i class="me-1 bi bi-person-plus"></i>
                                     Register as Customer
                                 </a>
-                                <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                <a href="@Url.Action("Login", "Account")" class="btn-outline-primary btn">
+                                    <i class="bi-box-arrow-in-right me-1 bi"></i>
                                     Login
                                 </a>
                             </div>
@@ -47,21 +47,21 @@
                         {
                             <div class="mt-3">
                                 <p>If you need printing services, please contact customer support or log in with a customer account.</p>
-                                <a href="@Url.Action("Index", "Home")" class="btn btn-primary me-2">
-                                    <i class="bi bi-house me-1"></i>
+                                <a href="@Url.Action("Index", "Home")" class="me-2 btn btn-primary">
+                                    <i class="me-1 bi bi-house"></i>
                                     Return to Home
                                 </a>
-                                <a href="@Url.Action("Dashboard", "Account")" class="btn btn-outline-secondary">
-                                    <i class="bi bi-speedometer2 me-1"></i>
+                                <a href="@Url.Action("Dashboard", "Account")" class="btn-outline-secondary btn">
+                                    <i class="me-1 bi bi-speedometer2"></i>
                                     Go to Dashboard
                                 </a>
                             </div>
                         }
                     </div>
                 </div>
-                <div class="card-footer text-muted">
+                <div class="text-muted card-footer">
                     <small>
-                        <i class="bi bi-info-circle me-1"></i>
+                        <i class="me-1 bi bi-info-circle"></i>
                         Need help? Contact our support team for assistance.
                     </small>
                 </div>
