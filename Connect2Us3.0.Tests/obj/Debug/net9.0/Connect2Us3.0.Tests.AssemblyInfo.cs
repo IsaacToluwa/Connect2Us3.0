@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Connect2Us3.0.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2390041d05f01048484fd48444ad277e169f3c70")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d661b0688b5ee4b79cc2047db71ebd9567ad09a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Connect2Us3.0.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Connect2Us3.0.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

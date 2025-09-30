@@ -118,6 +118,13 @@ namespace book2us.Controllers
                     if (order.PrintingStatus == "Ready" && existingOrder.ReadyForDeliveryDate == null)
                     {
                         existingOrder.ReadyForDeliveryDate = DateTime.Now;
+                        
+                        // Auto-assign delivery employee if delivery method selected and no employee assigned
+                        if (order.FulfillmentMethod == "Delivery" && (order.AssignedEmployeeId == null || order.AssignedEmployeeId == 0))
+                        {
+                            order.AssignedEmployeeId = AssignRandomLocalEmployeeForDelivery(existingOrder.Username);
+                            existingOrder.AssignedEmployeeId = order.AssignedEmployeeId;
+                        }
                     }
                     
                     if (order.PrintingStatus == "Delivered" || order.PrintingStatus == "PickedUp")

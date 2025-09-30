@@ -88,7 +88,8 @@ namespace book2us.Controllers
             
             // Check if this is a printing service order
             var cart = GetCart();
-            ViewBag.IsPrintingService = cart.CartItems.Any(item => item.Book != null && item.Book.Title.ToLower().Contains("printing"));
+            bool isPrintingServiceFromSession = Session["IsPrintingService"] != null && (bool)Session["IsPrintingService"];
+            ViewBag.IsPrintingService = isPrintingServiceFromSession || cart.CartItems.Any(item => item.Book != null && item.Book.Title.ToLower().Contains("printing"));
             
             return View(order);
         }
@@ -118,8 +119,12 @@ namespace book2us.Controllers
                 order.OrderDetails = cart.CartItems;
                 order.Total = cart.CartItems.Sum(item => item.Book.Price * item.Quantity);
                 
+                // Check for printing service from session if not provided in parameters
+                bool isPrintingServiceFromSession = Session["IsPrintingService"] != null && (bool)Session["IsPrintingService"];
+                bool actualIsPrintingService = isPrintingService == true || isPrintingServiceFromSession;
+                
                 // Handle printing service parameters
-                if (isPrintingService == true)
+                if (actualIsPrintingService)
                 {
                     order.IsPrintingService = true;
                     order.PrintingStatus = "Requested";
@@ -135,6 +140,9 @@ namespace book2us.Controllers
                     
                     // Auto-assign to a random employee/seller in the same location
                     order.AssignedEmployeeId = AssignRandomLocalEmployee(order.Username);
+                    
+                    // Clear the session flag after use
+                    Session["IsPrintingService"] = null;
                 }
                 
                 db.Orders.Add(order);

@@ -12,8 +12,7 @@ namespace book2us.Models
         [Required]
         public int UserId { get; set; }
 
-        [Required]
-        public int BookId { get; set; }
+        public int? BookId { get; set; }
 
         [Required]
         public int Quantity { get; set; }
@@ -24,10 +23,28 @@ namespace book2us.Models
         [Required]
         public DateTime RequestDate { get; set; }
 
+        // New fields for admin printing service and delivery
+        public string PdfFilePath { get; set; }
+        
+        public bool RequiresDelivery { get; set; }
+        
+        public int? AssignedEmployeeId { get; set; }
+        
+        public string CustomerName { get; set; }
+        
+        public string CustomerEmail { get; set; }
+        
+        public string CustomerPhone { get; set; }
+        
+        public string DeliveryAddress { get; set; }
+
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("BookId")]
         public virtual Book Book { get; set; }
+        
+        [ForeignKey("AssignedEmployeeId")]
+        public virtual ApplicationUser AssignedEmployee { get; set; }
     }
 }

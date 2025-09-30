@@ -1,0 +1,561 @@
+@model book2us.Controllers.BankingViewModel
+
+@{
+    ViewBag.Title = "Banking & Payment Methods";
+}
+
+<div class="banking-dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h2><i class="fas fa-university"></i> Banking & Payment Methods</h2>
+            <p class="text-muted">Manage your bank accounts and payment cards securely</p>
+        </div>
+        <div class="header-actions">
+            <a href="@Url.Action("Index", "Wallet")" class="btn btn-outline-primary">
+                <i class="fas fa-wallet"></i> Back to Wallet
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="banking-dashboard">
+        <!-- Bank Accounts Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h4><i class="fas fa-building"></i> Bank Accounts</h4>
+                <a href="@Url.Action("AddBankAccount", "Banking")" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add Bank Account
+                </a>
+            </div>
+
+            @if (Model.BankAccounts != null && Model.BankAccounts.Any(a => a.IsActive))
+            {
+                <div class="accounts-grid">
+                    @foreach (var account in Model.BankAccounts.Where(a => a.IsActive))
+                    {
+                        <div class="account-card">
+                            <div class="card-header">
+                                <div class="bank-info">
+                                    <div class="bank-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="bank-details">
+                                        <h5>@account.BankName</h5>
+                                        <span class="account-type">@account.AccountType Account</span>
+                                    </div>
+                                </div>
+                                <div class="status-badge active">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="account-details">
+                                    <div class="detail-row">
+                                        <span class="label">Account Holder:</span>
+                                        <span class="value">@account.AccountHolderName</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">Account Number:</span>
+                                        <span class="value">****@account.AccountNumber.Substring(account.AccountNumber.Length - 4)</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">Routing Number:</span>
+                                        <span class="value">****@account.RoutingNumber.Substring(account.RoutingNumber.Length - 4)</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Added @account.CreatedDate.ToString("MMM dd, yyyy")
+                                    </div>
+                                    @if (account.LastUsedDate.HasValue)
+                                    {
+                                        <div class="meta-item">
+                                            <i class="fas fa-calendar-check"></i>
+                                            Last used @account.LastUsedDate.Value.ToString("MMM dd, yyyy")
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="card-actions">
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteBankAccount(@account.BankAccountId)">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-university fa-3x text-muted"></i>
+                    <h5>No Bank Accounts</h5>
+                    <p>You haven't added any bank accounts yet.</p>
+                    <a href="@Url.Action("AddBankAccount", "Banking")" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Bank Account
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Payment Cards Section -->
+        <div class="section-container">
+            <div class="section-header">
+                <h4><i class="fas fa-credit-card"></i> Payment Cards</h4>
+                <a href="@Url.Action("AddCard", "Banking")" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add Card
+                </a>
+            </div>
+
+            @if (Model.CardDetails != null && Model.CardDetails.Any(c => c.IsActive))
+            {
+                <div class="cards-grid">
+                    @foreach (var card in Model.CardDetails.Where(c => c.IsActive))
+                    {
+                        <div class="card-item @(card.IsDefault ? "default-card" : "")">
+                            <div class="card-header">
+                                <div class="card-brand">
+                                    @if (card.CardType == "Visa")
+                                    {
+                                        <i class="fab fa-cc-visa visa-color"></i>
+                                    }
+                                    else if (card.CardType == "MasterCard")
+                                    {
+                                        <i class="fab fa-cc-mastercard mastercard-color"></i>
+                                    }
+                                    else if (card.CardType == "American Express")
+                                    {
+                                        <i class="fab fa-cc-amex amex-color"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-credit-card"></i>
+                                    }
+                                    <span class="card-type">@card.CardType</span>
+                                </div>
+                                @if (card.IsDefault)
+                                {
+                                    <div class="default-badge">
+                                        <i class="fas fa-star"></i> Default
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-number">
+                                    **** **** **** @card.LastFourDigits
+                                </div>
+                                <div class="card-holder">
+                                    @card.CardHolderName
+                                </div>
+                                <div class="card-expiry">
+                                    Expires @card.ExpiryMonth/@card.ExpiryYear
+                                </div>
+                            </div>
+
+                            <div class="card-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Added @card.CreatedDate.ToString("MMM dd, yyyy")
+                                </div>
+                                @if (card.LastUsedDate.HasValue)
+                                {
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Last used @card.LastUsedDate.Value.ToString("MMM dd, yyyy")
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="card-actions">
+                                @if (!card.IsDefault)
+                                {
+                                    <form action="@Url.Action("SetDefaultCard", "Banking")" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@card.CardId" />
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-star"></i> Set as Default
+                                        </button>
+                                    </form>
+                                }
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteCard(@card.CardId)">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-credit-card fa-3x text-muted"></i>
+                    <h5>No Payment Cards</h5>
+                    <p>You haven't added any payment cards yet.</p>
+                    <a href="@Url.Action("AddCard", "Banking")" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Card
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="security-notice">
+        <div class="notice-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="notice-content">
+            <h5>Your Information is Secure</h5>
+            <p>All your banking and card information is encrypted and stored securely using bank-level security measures. We never store your full card numbers or bank account details in plain text.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modals -->
+<div class="modal fade" id="deleteBankAccountModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Bank Account</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this bank account?</p>
+                <p class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i> This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteBankAccountForm" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteCardModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Payment Card</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this payment card?</p>
+                <p class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i> This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteCardForm" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .banking-dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+    }
+
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .section-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .section-header h4 {
+        margin: 0;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .accounts-grid, .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        padding: 30px;
+    }
+
+    .account-card, .card-item {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .account-card:hover, .card-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .default-card {
+        border: 2px solid #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .bank-info, .card-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .bank-icon, .card-brand i {
+        font-size: 2em;
+        color: #007bff;
+    }
+
+    .bank-details h5 {
+        margin: 0;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .account-type, .card-type {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 600;
+    }
+
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .default-badge {
+        background: #d4edda;
+        color: #155724;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .account-details, .card-body {
+        margin-bottom: 15px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .value {
+        color: #6c757d;
+    }
+
+    .card-number {
+        font-family: 'Courier New', monospace;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 10px;
+    }
+
+    .card-holder {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+
+    .card-expiry {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    .card-meta, .account-meta {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    .card-actions, .account-actions {
+        padding: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .security-notice {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 25px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 15px;
+        border-left: 4px solid #2196f3;
+    }
+
+    .notice-icon {
+        font-size: 3em;
+        color: #2196f3;
+    }
+
+    .notice-content h5 {
+        margin: 0 0 10px 0;
+        color: #1565c0;
+    }
+
+    .notice-content p {
+        margin: 0;
+        color: #424242;
+    }
+
+    .visa-color { color: #1a1f71; }
+    .mastercard-color { color: #eb001b; }
+    .amex-color { color: #006fcf; }
+
+    @@media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .accounts-grid, .cards-grid {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+
+        .section-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .card-actions, .account-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function confirmDeleteBankAccount(id) {
+            $('#deleteBankAccountForm').attr('action', '@Url.Action("DeleteBankAccount", "Banking")' + '/' + id);
+            $('#deleteBankAccountModal').modal('show');
+        }
+
+        function confirmDeleteCard(id) {
+            $('#deleteCardForm').attr('action', '@Url.Action("DeleteCard", "Banking")' + '/' + id);
+            $('#deleteCardModal').modal('show');
+        }
+    </script>
+}

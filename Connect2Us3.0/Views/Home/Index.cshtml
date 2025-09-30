@@ -19,7 +19,7 @@
                     @Html.ActionLink("Browse Books", "Index", "Book", null, new { @class = "btn btn-light btn-lg me-3" })
                     if (User.IsInRole("Seller"))
                     {
-                        @Html.ActionLink("Sell a Book", "Create", "Book", null, new { @class = "btn btn-outline-light btn-lg" })
+                        @Html.ActionLink("Sell a Book", "Create", "Seller", null, new { @class = "btn btn-outline-light btn-lg" })
                     }
                 }
             </div>
@@ -64,7 +64,7 @@
                                 </div>
                                 <h5 class="card-title">Sell Books</h5>
                                 <p class="card-text">List your books for sale and reach thousands of buyers</p>
-                                @Html.ActionLink("Start Selling", "Create", "Book", null, new { @class = "btn btn-warning" })
+                                @Html.ActionLink("Start Selling", "Create", "Seller", null, new { @class = "btn btn-warning" })
                             </div>
                         </div>
                     </div>

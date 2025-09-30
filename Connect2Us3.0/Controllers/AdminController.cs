@@ -1,7 +1,10 @@
 using book2us.Models;
+using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Web;
 using System.Web.Mvc;
 
 namespace book2us.Controllers
@@ -115,6 +118,74 @@ namespace book2us.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        // GET: Admin/ManagePrintingOrders
+        public ActionResult ManagePrintingOrders()
+        {
+            var printingOrders = db.PrintingRequests
+                .Include(p => p.Book)
+                .Include(p => p.User)
+                .Include(p => p.AssignedEmployee)
+                .OrderByDescending(p => p.RequestDate)
+                .ToList();
+            
+            // Get list of employees for assignment dropdown
+            var employees = db.ApplicationUsers
+                .Where(u => u.Role == "Employee")
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.UserName
+                })
+                .ToList();
+            
+            ViewBag.Employees = employees;
+            
+            return View(printingOrders);
+        }
+
+        // GET: Admin/AllPrintingOrders
+        public ActionResult AllPrintingOrders()
+        {
+            var printingOrders = db.PrintingRequests
+                .Include(p => p.Book)
+                .Include(p => p.User)
+                .Include(p => p.AssignedEmployee)
+                .OrderByDescending(p => p.RequestDate)
+                .ToList();
+            
+            // Get list of employees for assignment dropdown
+            var employees = db.ApplicationUsers
+                .Where(u => u.Role == "Employee")
+                .Select(e => new SelectListItem
+                {
+                    Value = e.Id.ToString(),
+                    Text = e.UserName
+                })
+                .ToList();
+            
+            ViewBag.Employees = employees;
+            
+            return View(printingOrders);
+        }
+
+        // POST: Admin/AssignDelivery
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AssignDelivery(int id, int employeeId)
+        {
+            var printingRequest = db.PrintingRequests.Find(id);
+            if (printingRequest != null)
+            {
+                printingRequest.AssignedEmployeeId = employeeId;
+                printingRequest.Status = "Assigned";
+                db.SaveChanges();
+                
+                TempData["SuccessMessage"] = "Delivery assigned to employee successfully.";
+            }
+            
+            return RedirectToAction("ManagePrintingOrders");
         }
     }
 }
