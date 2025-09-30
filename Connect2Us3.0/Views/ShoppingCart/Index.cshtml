@@ -6,39 +6,84 @@
 
 <h2>Shopping Cart</h2>
 
-<table class="table">
-    <tr>
-        <th>
-            Book Title
-        </th>
-        <th>
-            Quantity
-        </th>
-        <th>
-            Price
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model.CartItems)
+@if (TempData["SuccessMessage"] != null)
 {
-    <tr>
-        <td>
-            @item.Book.Title
-        </td>
-        <td>
-            @item.Quantity
-        </td>
-        <td>
-            @string.Format("{0:c}", item.Book.Price * item.Quantity)
-        </td>
-        <td>
-            @Html.ActionLink("Remove", "RemoveFromCart", new { id = item.BookId })
-        </td>
-    </tr>
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
 }
-</table>
 
-<p>
-    @Html.ActionLink("Checkout", "Checkout", "ShoppingCart")
-</p>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (Model == null || Model.CartItems == null || !Model.CartItems.Any())
+{
+    <div class="alert alert-info">
+        <p>Your shopping cart is empty.</p>
+        <p>@Html.ActionLink("Continue Shopping", "Index", "Book", null, new { @class = "btn btn-primary" })</p>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th>
+                Book Title
+            </th>
+            <th>
+                Quantity
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+
+    @foreach (var item in Model.CartItems)
+    {
+        <tr>
+            <td>
+                @if (item.Book != null)
+                {
+                    @item.Book.Title
+                }
+                else
+                {
+                    <span class="text-danger">Book information not available</span>
+                }
+            </td>
+            <td>
+                @item.Quantity
+            </td>
+            <td>
+                @if (item.Book != null)
+                {
+                    @Html.Raw(string.Format("{0:c}", item.Book.Price * item.Quantity))
+                }
+                else
+                {
+                    <span class="text-danger">Price not available</span>
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Remove", "RemoveFromCart", new { id = item.BookId })
+            </td>
+        </tr>
+    }
+    </table>
+
+    <div class="row">
+        <div class="col-md-6">
+            <p>
+                <strong>Total: @Html.Raw(string.Format("{0:c}", Model.CartItems.Sum(item => item.Book != null ? item.Book.Price * item.Quantity : 0)))</strong>
+            </p>
+        </div>
+        <div class="text-end col-md-6">
+            @Html.ActionLink("Checkout", "Checkout", "ShoppingCart", null, new { @class = "btn btn-success" })
+        </div>
+    </div>
+}

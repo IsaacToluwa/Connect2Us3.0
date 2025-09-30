@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="book2us.MvcApplication" Language="C#" %>

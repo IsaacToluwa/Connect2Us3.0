@@ -1,0 +1,244 @@
+@model book2us.Models.PrintingRequest
+
+@{
+    ViewBag.Title = "PDF Printing Service";
+}
+
+<h2>📄 PDF Printing Service</h2>
+<p class="lead">Upload your PDF file and we'll print it for you with professional quality.</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        @using (Html.BeginForm("CreateRequest", "CustomerPrinting", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <div class="mb-4 card">
+                    <div class="card-header">
+                        <h4>📎 Upload Your PDF</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">PDF File *</label>
+                            <div class="col-md-9">
+                                <input type="file" name="pdfFile" id="pdfFile" class="form-control" accept=".pdf" required />
+                                @Html.ValidationMessage("pdfFile", "", new { @class = "text-danger" })
+                                <small class="text-muted form-text">Only PDF files are accepted. Maximum file size: 50MB</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 card">
+                    <div class="card-header">
+                        <h4>📋 Printing Details</h4>
+                    </div>
+                    <div class="card-body">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Quantity, "Number of Copies", htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control", min = "1", max = "100", value = "1" } })
+                                @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                                <small class="text-muted form-text">How many copies do you need?</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TotalPages, "Total Pages", htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.EditorFor(model => model.TotalPages, new { htmlAttributes = new { @class = "form-control", min = "1", id = "totalPages" } })
+                                @Html.ValidationMessageFor(model => model.TotalPages, "", new { @class = "text-danger" })
+                                <small class="text-muted form-text">Total number of pages in your PDF (R3.00 per page)</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FulfillmentMethod, "Fulfillment Method", htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                <div class="form-check">
+                                    @Html.RadioButtonFor(model => model.FulfillmentMethod, "Pickup", new { @class = "form-check-input", id = "pickup", @checked = "checked" })
+                                    <label class="form-check-label" for="pickup">
+                                        🏪 <strong>Pickup - Free</strong><br />
+                                        <small class="text-muted">Pick up at our store location</small>
+                                    </label>
+                                </div>
+                                <div class="mt-2 form-check">
+                                    @Html.RadioButtonFor(model => model.FulfillmentMethod, "Delivery", new { @class = "form-check-input", id = "delivery" })
+                                    <label class="form-check-label" for="delivery">
+                                        📦 <strong>Delivery - R10.00</strong><br />
+                                        <small class="text-muted">Delivered to your address</small>
+                                    </label>
+                                </div>
+                                @Html.ValidationMessageFor(model => model.FulfillmentMethod, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="deliveryAddressGroup" style="display: none;">
+                            @Html.LabelFor(model => model.DeliveryAddress, "Delivery Address", htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.TextAreaFor(model => model.DeliveryAddress, new { @class = "form-control", rows = "3", placeholder = "Enter your complete delivery address including street, city, and postal code" })
+                                @Html.ValidationMessageFor(model => model.DeliveryAddress, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CustomerNotes, "Special Instructions", htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.TextAreaFor(model => model.CustomerNotes, new { @class = "form-control", rows = "3", placeholder = "Any special printing requirements or instructions (optional)" })
+                                @Html.ValidationMessageFor(model => model.CustomerNotes, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 card">
+                    <div class="card-header">
+                        <h4>💰 Cost Estimate</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Printing Cost:</strong> R<span id="printingCost">3.00</span><br />
+                                <small class="text-muted">Pages: <span id="pageCount">1</span> × Copies: <span id="copyCount">1</span> × R3.00</small>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Delivery:</strong> R<span id="deliveryCost">0.00</span><br />
+                                <small class="text-muted" id="deliveryNote">Free pickup selected</small>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5><strong>Total Estimate: R<span id="totalCost">3.00</span></strong></h5>
+                                <small class="text-muted">Final cost will be confirmed during checkout</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            🛒 Add to Cart & Proceed to Checkout
+                        </button>
+                        @Html.ActionLink("Cancel", "Index", "Home", null, new { @class = "btn btn-secondary ml-2" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>📋 How It Works</h4>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li><strong>Upload PDF:</strong> Select your PDF file to print</li>
+                    <li><strong>Set Details:</strong> Choose quantity, pages, and delivery method</li>
+                    <li><strong>Checkout:</strong> Complete payment through our secure system</li>
+                    <li><strong>Processing:</strong> We'll print your document professionally</li>
+                    <li><strong>Delivery:</strong> Pick up or receive delivery as selected</li>
+                </ol>
+                
+                <hr />
+                
+                <h5>📞 Need Help?</h5>
+                <p>Contact us if you have questions about:</p>
+                <ul>
+                    <li>File format requirements</li>
+                    <li>Printing quality options</li>
+                    <li>Delivery areas</li>
+                    <li>Bulk printing discounts</li>
+                </ul>
+                
+                <hr />
+                
+                <h5>⏱️ Processing Time</h5>
+                <p><strong>Standard:</strong> 2-3 business days<br />
+                <strong>Rush:</strong> Same day (additional fees apply)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Show/hide delivery address based on fulfillment method
+            $('input[name="FulfillmentMethod"]').change(function() {
+                if ($(this).val() === 'Delivery') {
+                    $('#deliveryAddressGroup').show();
+                    $('#DeliveryAddress').attr('required', 'required');
+                    $('#deliveryCost').text('10.00');
+                    $('#deliveryNote').text('Delivery to your address');
+                } else {
+                    $('#deliveryAddressGroup').hide();
+                    $('#DeliveryAddress').removeAttr('required');
+                    $('#deliveryCost').text('0.00');
+                    $('#deliveryNote').text('Free pickup selected');
+                }
+                updateCostEstimate();
+            });
+
+            // Update cost estimate when values change
+            $('#totalPages, #Quantity, input[name="FulfillmentMethod"]').on('input change', function() {
+                updateCostEstimate();
+            });
+
+            function updateCostEstimate() {
+                var pages = parseInt($('#totalPages').val()) || 1;
+                var copies = parseInt($('#Quantity').val()) || 1;
+                var deliveryMethod = $('input[name="FulfillmentMethod"]:checked').val();
+                
+                var printingCost = pages * copies * 3.00;
+                var deliveryCost = deliveryMethod === 'Delivery' ? 10.00 : 0.00;
+                var totalCost = printingCost + deliveryCost;
+                
+                $('#pageCount').text(pages);
+                $('#copyCount').text(copies);
+                $('#printingCost').text(printingCost.toFixed(2));
+                $('#deliveryCost').text(deliveryCost.toFixed(2));
+                $('#totalCost').text(totalCost.toFixed(2));
+            }
+
+            // File validation
+            $('#pdfFile').change(function() {
+                var file = this.files[0];
+                if (file) {
+                    if (file.type !== 'application/pdf') {
+                        alert('Please select a PDF file only.');
+                        $(this).val('');
+                        return;
+                    }
+                    if (file.size > 50 * 1024 * 1024) { // 50MB
+                        alert('File size must be less than 50MB.');
+                        $(this).val('');
+                        return;
+                    }
+                }
+            });
+
+            // Initialize cost estimate
+            updateCostEstimate();
+        });
+    </script>
+}

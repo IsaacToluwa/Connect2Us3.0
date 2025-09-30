@@ -1,0 +1,144 @@
+@model book2us.Models.PrintingRequest
+
+@{
+    ViewBag.Title = "Request Printing Service";
+}
+
+<h2>Request Printing Service</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.BookId)
+
+            <div class="form-horizontal">
+                <h4>Book Information</h4>
+                <hr />
+                <dl class="dl-horizontal">
+                    <dt>Title:</dt>
+                    <dd>@ViewBag.BookTitle</dd>
+                    <dt>Author:</dt>
+                    <dd>@ViewBag.BookAuthor</dd>
+                    <dt>Price:</dt>
+                    <dd>@Html.Raw(string.Format("{0:c}", ViewBag.BookPrice))</dd>
+                </dl>
+
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Quantity, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control", min = "1", max = "100" } })
+                        @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                        <small class="text-muted form-text">Number of copies you want printed</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalPages, "Total Pages", htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.TotalPages, new { htmlAttributes = new { @class = "form-control", min = "1" } })
+                        @Html.ValidationMessageFor(model => model.TotalPages, "", new { @class = "text-danger" })
+                        <small class="text-muted form-text">Total number of pages to be printed (3 Rand per page)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FulfillmentMethod, "Fulfillment Method", htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.DropDownListFor(model => model.FulfillmentMethod, 
+                            new SelectList(new[] { "Pickup", "Delivery" }), 
+                            htmlAttributes: new { @class = "form-control", id = "fulfillmentMethod" })
+                        @Html.ValidationMessageFor(model => model.FulfillmentMethod, "", new { @class = "text-danger" })
+                        <small class="text-muted form-text">Choose how you want to receive your printed book</small>
+                    </div>
+                </div>
+
+                <div class="form-group" id="deliveryAddressGroup" style="display: none;">
+                    @Html.LabelFor(model => model.DeliveryAddress, "Delivery Address", htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.TextAreaFor(model => model.DeliveryAddress, new { @class = "form-control", rows = "3", placeholder = "Enter your delivery address including street, city, and postal code" })
+                        @Html.ValidationMessageFor(model => model.DeliveryAddress, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CustomerNotes, "Additional Notes", htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.TextAreaFor(model => model.CustomerNotes, new { @class = "form-control", rows = "3", placeholder = "Any special instructions or requirements for your printing request" })
+                        @Html.ValidationMessageFor(model => model.CustomerNotes, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <div class="alert alert-info">
+                            <h5>Cost Breakdown:</h5>
+                            <ul>
+                                <li>Printing Cost: 3 Rand per page</li>
+                                <li>Delivery Commission: 20% of total (if delivery selected)</li>
+                                <li>Final cost will be calculated and confirmed via email</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <input type="submit" value="Submit Printing Request" class="btn btn-primary btn-lg" />
+                        @Html.ActionLink("Cancel", "Index", "Book", null, new { @class = "btn btn-default" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4>How It Works</h4>
+            </div>
+            <div class="panel-body">
+                <ol>
+                    <li>Submit your printing request with the required details</li>
+                    <li>We'll assign your request to the nearest available printer</li>
+                    <li>You'll receive an email confirmation with estimated completion time</li>
+                    <li>We'll notify you when your book is ready for pickup or delivery</li>
+                </ol>
+                <hr />
+                <h5>Processing Time:</h5>
+                <p>Typically 2-3 business days, depending on the number of pages and current workload.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Show/hide delivery address based on fulfillment method
+            $('#fulfillmentMethod').change(function() {
+                if ($(this).val() === 'Delivery') {
+                    $('#deliveryAddressGroup').show();
+                    $('#DeliveryAddress').attr('required', 'required');
+                } else {
+                    $('#deliveryAddressGroup').hide();
+                    $('#DeliveryAddress').removeAttr('required');
+                }
+            });
+
+            // Trigger change event to set initial state
+            $('#fulfillmentMethod').trigger('change');
+        });
+    </script>
+}

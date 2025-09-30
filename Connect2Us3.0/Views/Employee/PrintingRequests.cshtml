@@ -1,0 +1,185 @@
+@model IEnumerable<book2us.Models.PrintingRequest>
+
+@{
+    ViewBag.Title = "Printing Requests";
+}
+
+<div class="container-fluid">
+    <h2>Printing Requests Management</h2>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            @Html.ActionLink("Dashboard", "Index", null, new { @class = "btn btn-outline-primary" })
+            @Html.ActionLink("Delivery Assignments", "DeliveryAssignments", null, new { @class = "btn btn-outline-success" })
+            @Html.ActionLink("All Printing Orders", "PrintingOrders", null, new { @class = "btn btn-outline-info" })
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4><i class="fas fa-print"></i> Assigned Printing Requests</h4>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Customer</th>
+                                <th>Document Type</th>
+                                <th>Pages</th>
+                                <th>Quantity</th>
+                                <th>Cost</th>
+                                <th>Fulfillment</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in Model)
+                            {
+                                <tr>
+                                    <td><strong>#@request.PrintingRequestId</strong></td>
+                                    <td>
+                                        <div>
+                                            <strong>@(request.User?.UserName ?? "Unknown")</strong>
+                                            @if (!string.IsNullOrEmpty(request.User?.Email))
+                                            {
+                                                <br><small class="text-muted">@request.User.Email</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (request.Book?.Title?.Contains("PDF Printing") == true)
+                                        {
+                                            <span class="badge badge-info"><i class="fas fa-file-pdf"></i> PDF Document</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary"><i class="fas fa-book"></i> @(request.Book?.Title ?? "Book")</span>
+                                        }
+                                    </td>
+                                    <td>@request.TotalPages</td>
+                                    <td>@request.Quantity</td>
+                                    <td><strong>R @(request.PrintingCost?.ToString("F2") ?? "Pending")</strong></td>
+                                    <td>
+                                        @if (request.FulfillmentMethod == "Delivery")
+                                        {
+                                            <span class="text-primary"><i class="fas fa-truck"></i> Delivery</span>
+                                            @if (!string.IsNullOrEmpty(request.DeliveryAddress))
+                                            {
+                                                <br><small class="text-muted">@request.DeliveryAddress</small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success"><i class="fas fa-store"></i> Pickup</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @switch (request.Status)
+                                        {
+                                            case "Processing":
+                                                <span class="badge badge-warning badge-lg"><i class="fas fa-cog fa-spin"></i> Processing</span>
+                                                break;
+                                            case "Ready":
+                                                <span class="badge badge-success badge-lg"><i class="fas fa-check"></i> Ready</span>
+                                                break;
+                                            case "Completed":
+                                                <span class="badge badge-primary badge-lg"><i class="fas fa-check-double"></i> Completed</span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge badge-danger badge-lg"><i class="fas fa-times"></i> Cancelled</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-secondary badge-lg">@request.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <div>
+                                            @request.RequestDate.ToString("MM/dd/yyyy")
+                                            <br><small class="text-muted">@request.RequestDate.ToString("HH:mm")</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical" role="group">
+                                            @Html.ActionLink("Details", "PrintRequestDetails", new { id = request.PrintingRequestId }, new { @class = "btn btn-sm btn-info mb-1" })
+                                            
+                                            @if (request.Status == "Processing")
+                                            {
+                                                using (Html.BeginForm("UpdatePrintRequestStatus", "Employee", new { id = request.PrintingRequestId, status = "Ready" }, FormMethod.Post, new { @class = "mb-1" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this print request as ready for @(request.FulfillmentMethod?.ToLower() ?? "fulfillment")?');">
+                                                        <i class="fas fa-check"></i> Mark Ready
+                                                    </button>
+                                                }
+                                            }
+                                            
+                                            @if (request.Status == "Ready" && request.FulfillmentMethod == "Delivery")
+                                            {
+                                                using (Html.BeginForm("UpdatePrintRequestStatus", "Employee", new { id = request.PrintingRequestId, status = "Completed" }, FormMethod.Post, new { @class = "mb-1" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Confirm delivery completion?');">
+                                                        <i class="fas fa-truck"></i> Mark Delivered
+                                                    </button>
+                                                }
+                                            }
+                                            
+                                            @if (request.Status == "Ready" && request.FulfillmentMethod == "Pickup")
+                                            {
+                                                <small class="text-muted">Ready for customer pickup</small>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-print fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No printing requests assigned to you</h5>
+                    <p class="text-muted">Printing requests will appear here when they are assigned to you.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-lg {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+    
+    .btn-group-vertical .btn {
+        margin-bottom: 2px;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    .card-header i {
+        margin-right: 8px;
+    }
+</style>

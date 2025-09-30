@@ -1,0 +1,50 @@
+@model book2us.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "Test Login";
+}
+
+<h2>Test Login</h2>
+
+@if (!Request.IsAuthenticated)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        
+        <div>
+            @Html.LabelFor(model => model.Email)
+            @Html.TextBoxFor(model => model.Email)
+            @Html.ValidationMessageFor(model => model.Email)
+        </div>
+        
+        <div>
+            @Html.LabelFor(model => model.Password)
+            @Html.PasswordFor(model => model.Password)
+            @Html.ValidationMessageFor(model => model.Password)
+        </div>
+        
+        <div>
+            @Html.CheckBoxFor(model => model.RememberMe)
+            @Html.LabelFor(model => model.RememberMe)
+        </div>
+        
+        <button type="submit">Login</button>
+    }
+    
+    <div style="color: red;">
+        @Html.ValidationSummary(true)
+    </div>
+}
+else
+{
+    <div style="color: green;">
+        <h3>Authentication Status: LOGGED IN</h3>
+        <p>User: @User.Identity.Name</p>
+        <p>Authentication Type: @User.Identity.AuthenticationType</p>
+        <p>Is Authenticated: @User.Identity.IsAuthenticated</p>
+        
+        @Html.ActionLink("Logout", "Logout", "Account")
+        @Html.ActionLink("Go to Home", "Index", "Home")
+    </div>
+}

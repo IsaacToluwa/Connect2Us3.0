@@ -1,10 +1,40 @@
 @model book2us.Models.Order
 
 @{
-    ViewBag.Title = "Test Checkout - Field Names";
+    ViewBag.Title = "Test Checkout";
 }
 
-<h2>Test Checkout - Field Names</h2>
+<h2>Test Checkout Form</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="alert alert-info">
+    <strong>Debug Info:</strong><br/>
+    User Authenticated: @User.Identity.IsAuthenticated<br/>
+    User Name: @User.Identity.Name<br/>
+    ViewBag.IsPrintingService: @ViewBag.IsPrintingService
+</div>
+
+@using (Html.BeginForm("TestCheckout", "ShoppingCart", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-group">
+        <label>Test Field:</label>
+        <input type="text" name="testField" class="form-control" value="test value" />
+    </div>
+    
+    <input type="hidden" name="isPrintingService" value="true" />
+    <input type="hidden" name="totalPages" value="10" />
+    <input type="hidden" name="fulfillmentMethod" value="Pickup" />
+    
+    <input type="submit" value="Test Submit" class="btn btn-primary" />
+}
 
 <div class="form-horizontal">
     <h4>Field Name Analysis</h4>
@@ -37,6 +67,24 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            console.log('Test form loaded');
+            console.log('User authenticated:', '@User.Identity.IsAuthenticated');
+            console.log('User name:', '@User.Identity.Name');
+            
+            $('form').on('submit', function(e) {
+                console.log('TEST FORM SUBMISSION DETECTED');
+                console.log('Form action:', $(this).attr('action'));
+                console.log('Form method:', $(this).attr('method'));
+                
+                // Log all form data
+                var formData = new FormData(this);
+                for (var pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
+                console.log('Test form submission proceeding...');
+            });
+            
             console.log('Field IDs:');
             console.log('Address ID:', '@Html.IdFor(model => model.Address)');
             console.log('City ID:', '@Html.IdFor(model => model.City)');

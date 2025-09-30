@@ -1,0 +1,22 @@
+@{
+    ViewBag.Title = "Customer Printing Test";
+}
+
+<h2>Customer Printing Test Page</h2>
+
+<p>This is a test page to verify the CustomerPrinting controller is working.</p>
+
+<div class="alert alert-info">
+    <h4>Available Actions:</h4>
+    <ul>
+        <li><a href="@Url.Action("Index", "CustomerPrinting")" class="btn btn-primary">View My Printing Requests</a></li>
+        <li><a href="@Url.Action("Request", "CustomerPrinting", new { id = 1 })" class="btn btn-info">Test Request Printing (Book ID: 1)</a></li>
+    </ul>
+</div>
+
+<div class="alert alert-warning">
+    <h4>Debug Information:</h4>
+    <p>Controller: CustomerPrinting</p>
+    <p>Current User: @(User.Identity.IsAuthenticated ? User.Identity.Name : "Not authenticated")</p>
+    <p>Is Authenticated: @User.Identity.IsAuthenticated</p>
+</div>

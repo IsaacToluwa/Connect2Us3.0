@@ -7,10 +7,10 @@
         @Html.AntiForgeryToken()
     }
     
-    <ul class="navbar-nav ms-auto">
+    <ul class="ms-auto navbar-nav">
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle me-1"></i>
+            <a class="d-flex align-items-center nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="me-1 bi bi-person-circle"></i>
                 <span>@Context.User.Identity.Name</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -24,10 +24,15 @@
                         <i class="bi bi-person-gear"></i> Edit Profile
                     </a>
                 </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Index", "CustomerPrinting")">
+                        <i class="bi bi-printer"></i> My Printing Requests
+                    </a>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item text-danger" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                    <a class="text-danger dropdown-item" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                        <i class="bi-box-arrow-right bi"></i> Logout
                     </a>
                 </li>
             </ul>
@@ -36,8 +41,8 @@
 }
 else
 {
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item me-2">
+    <ul class="ms-auto navbar-nav">
+        <li class="me-2 nav-item">
             @Html.ActionLink("Login", "Login", "Account", null, new { @class = "btn btn-outline-light btn-sm", id = "loginLink" })
         </li>
         <li class="nav-item">

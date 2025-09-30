@@ -1,0 +1,387 @@
+@model book2us.Models.CardViewModel
+
+@{
+    ViewBag.Title = "Add New Card";
+}
+
+<h2>Add New Card</h2>
+
+<div class="add-card-container">
+    <div class="card-form-wrapper">
+        <div class="form-header">
+            <h4>Enter Card Details</h4>
+            <p class="text-muted">Please enter your credit or debit card information</p>
+        </div>
+
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> @ViewBag.SuccessMessage
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        }
+
+        @using (Html.BeginForm("AddCard", "Banking", FormMethod.Post, new { @class = "card-form", id = "addCardForm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CardHolderName, new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.CardHolderName, new { @class = "form-control", placeholder = "John Doe" })
+                @Html.ValidationMessageFor(m => m.CardHolderName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CardNumber, new { @class = "form-label" })
+                <div class="card-number-input">
+                    @Html.TextBoxFor(m => m.CardNumber, new { @class = "form-control", placeholder = "1234 5678 9012 3456", maxlength = "19" })
+                    <div class="card-type-icon" id="cardTypeIcon"></div>
+                </div>
+                @Html.ValidationMessageFor(m => m.CardNumber, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.ExpiryMonth, new { @class = "form-label" })
+                    @Html.DropDownListFor(m => m.ExpiryMonth, new SelectList(Enumerable.Range(1, 12)), "Select Month", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ExpiryMonth, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.ExpiryYear, new { @class = "form-label" })
+                    @Html.DropDownListFor(m => m.ExpiryYear, new SelectList(Enumerable.Range(DateTime.Now.Year, 8)), "Select Year", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ExpiryYear, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.CVV, new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.CVV, new { @class = "form-control", placeholder = "123", maxlength = "4" })
+                <small class="text-muted form-text">3-4 digit code on the back of your card</small>
+                @Html.ValidationMessageFor(m => m.CVV, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-actions">
+                <a href="@Url.Action("Index", "Banking")" class="btn-outline-secondary btn">
+                    <i class="fa-arrow-left fas"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Card
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="card-preview">
+        <div class="credit-card" id="cardPreview">
+            <div class="card-front">
+                <div class="card-logo">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="card-number-preview" id="cardNumberPreview">
+                    **** **** **** ****
+                </div>
+                <div class="card-details">
+                    <div class="card-holder-preview" id="cardHolderPreview">
+                        CARDHOLDER NAME
+                    </div>
+                    <div class="card-expiry-preview" id="cardExpiryPreview">
+                        MM/YY
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .add-card-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 40px;
+        align-items: start;
+    }
+
+    .card-form-wrapper {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+
+    .form-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .form-header h4 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        outline: none;
+    }
+
+    .card-number-input {
+        position: relative;
+    }
+
+    .card-type-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        color: #6c757d;
+    }
+
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: 2px solid #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .btn-outline-secondary {
+        background-color: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .card-preview {
+        position: sticky;
+        top: 20px;
+    }
+
+    .credit-card {
+        width: 100%;
+        max-width: 350px;
+        height: 220px;
+        margin: 0 auto;
+    }
+
+    .card-front {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        height: 100%;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .card-logo {
+        text-align: right;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .card-number-preview {
+        font-size: 18px;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .card-holder-preview {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .card-expiry-preview {
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .form-text {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    @@media (max-width: 768px) {
+        .add-card-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card-preview {
+            order: -1;
+            position: relative;
+            top: 0;
+        }
+
+        .credit-card {
+            max-width: 300px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardNumberInput = document.getElementById('CardNumber');
+        const cardHolderInput = document.getElementById('CardHolderName');
+        const expiryMonthSelect = document.getElementById('ExpiryMonth');
+        const expiryYearSelect = document.getElementById('ExpiryYear');
+        const cvvInput = document.getElementById('CVV');
+
+        const cardNumberPreview = document.getElementById('cardNumberPreview');
+        const cardHolderPreview = document.getElementById('cardHolderPreview');
+        const cardExpiryPreview = document.getElementById('cardExpiryPreview');
+        const cardTypeIcon = document.getElementById('cardTypeIcon');
+
+        // Format card number input
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '');
+            let formattedValue = value.replace(/(.{4})/g, '$1 ').trim();
+            e.target.value = formattedValue;
+            
+            // Update preview
+            if (value.length >= 4) {
+                let maskedValue = '*' + value.substring(1).replace(/\d/g, '*');
+                let formattedMasked = maskedValue.replace(/(.{4})/g, '$1 ').trim();
+                cardNumberPreview.textContent = formattedMasked;
+            } else {
+                cardNumberPreview.textContent = '**** **** **** ****';
+            }
+
+            // Detect card type
+            detectCardType(value);
+        });
+
+        // Update card holder preview
+        cardHolderInput.addEventListener('input', function(e) {
+            cardHolderPreview.textContent = e.target.value.toUpperCase() || 'CARDHOLDER NAME';
+        });
+
+        // Update expiry preview
+        function updateExpiryPreview() {
+            const month = expiryMonthSelect.value;
+            const year = expiryYearSelect.value;
+            if (month && year) {
+                cardExpiryPreview.textContent = `${month.padStart(2, '0')}/${year.slice(-2)}`;
+            } else {
+                cardExpiryPreview.textContent = 'MM/YY';
+            }
+        }
+
+        expiryMonthSelect.addEventListener('change', updateExpiryPreview);
+        expiryYearSelect.addEventListener('change', updateExpiryPreview);
+
+        // Detect card type
+        function detectCardType(cardNumber) {
+            if (cardNumber.startsWith('4')) {
+                cardTypeIcon.innerHTML = '<i class="fab fa-cc-visa" style="color: #1a1f71;"></i>';
+            } else if (cardNumber.startsWith('5')) {
+                cardTypeIcon.innerHTML = '<i class="fab fa-cc-mastercard" style="color: #eb001b;"></i>';
+            } else if (cardNumber.startsWith('3')) {
+                cardTypeIcon.innerHTML = '<i class="fab fa-cc-amex" style="color: #006fcf;"></i>';
+            } else if (cardNumber.startsWith('6')) {
+                cardTypeIcon.innerHTML = '<i class="fab fa-cc-discover" style="color: #ff6000;"></i>';
+            } else {
+                cardTypeIcon.innerHTML = '<i class="fas fa-credit-card"></i>';
+            }
+        }
+
+        // Form validation
+        document.getElementById('addCardForm').addEventListener('submit', function(e) {
+            const cardNumber = cardNumberInput.value.replace(/\s/g, '');
+            const cvv = cvvInput.value;
+
+            if (cardNumber.length < 13 || cardNumber.length > 19) {
+                e.preventDefault();
+                alert('Please enter a valid card number (13-19 digits)');
+                return;
+            }
+
+            if (cvv.length < 3 || cvv.length > 4) {
+                e.preventDefault();
+                alert('Please enter a valid CVV (3-4 digits)');
+                return;
+            }
+        });
+    });
+</script>

@@ -46,7 +46,7 @@
                         {
                             <div class="detail-row">
                                 <span class="detail-label">Processing Fee:</span>
-                                <span class="detail-value fee-amount">$@withdrawal.Fee.ToString("F2")</span>
+                                <span class="detail-value fee-amount">$@withdrawal.Fee.Value.ToString("F2")</span>
                             </div>
                         }
 
@@ -79,11 +79,11 @@
                             </div>
                         }
 
-                        @if (!string.IsNullOrEmpty(withdrawal.TransactionId))
+                        @if (withdrawal.TransactionId.HasValue)
                         {
                             <div class="detail-row">
                                 <span class="detail-label">Transaction ID:</span>
-                                <span class="detail-value transaction-id">@withdrawal.TransactionId</span>
+                                <span class="detail-value transaction-id">@withdrawal.TransactionId.Value</span>
                             </div>
                         }
                     </div>
@@ -159,14 +159,16 @@
         {
             case book2us.Models.WithdrawalStatus.Pending:
                 return "status-pending";
+            case book2us.Models.WithdrawalStatus.Processing:
+                return "status-processing";
             case book2us.Models.WithdrawalStatus.Approved:
                 return "status-approved";
             case book2us.Models.WithdrawalStatus.Rejected:
                 return "status-rejected";
-            case book2us.Models.WithdrawalStatus.Processed:
-                return "status-processed";
-            case book2us.Models.WithdrawalStatus.Cancelled:
-                return "status-cancelled";
+            case book2us.Models.WithdrawalStatus.Completed:
+                return "status-completed";
+            case book2us.Models.WithdrawalStatus.Failed:
+                return "status-failed";
             default:
                 return "";
         }
@@ -278,14 +280,14 @@
         color: #856404;
     }
 
+    .status-processing {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
     .status-approved {
         background-color: #d1ecf1;
         color: #0c5460;
-    }
-
-    .status-processed {
-        background-color: #d4edda;
-        color: #155724;
     }
 
     .status-rejected {
@@ -293,9 +295,14 @@
         color: #721c24;
     }
 
-    .status-cancelled {
-        background-color: #e2e3e5;
-        color: #383d41;
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-failed {
+        background-color: #f5c6cb;
+        color: #721c24;
     }
 
     .withdrawal-details {
@@ -374,7 +381,7 @@
         gap: 15px;
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .history-header {
             flex-direction: column;
             text-align: center;

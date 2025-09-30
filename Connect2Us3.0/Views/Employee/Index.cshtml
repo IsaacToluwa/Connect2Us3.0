@@ -1,40 +1,206 @@
-@model IEnumerable<book2us.Models.Order>
+@model book2us.Models.EmployeeDashboardViewModel
 
 @{
-    ViewBag.Title = "Orders";
+    ViewBag.Title = "Employee Dashboard";
 }
 
-<h2>Orders</h2>
+<div class="container-fluid">
+    <h2>Employee Dashboard</h2>
+    
+    <!-- Payment Summary Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Payment Summary - @DateTime.Now.ToString("MMMM yyyy")</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h5>Total Commission</h5>
+                            <h3>R @Model.PaymentSummary.TotalCommissionThisMonth.ToString("F2")</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Completed Deliveries</h5>
+                            <h3>@Model.PaymentSummary.CompletedDeliveriesThisMonth</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Average per Delivery</h5>
+                            <h3>R @Model.PaymentSummary.AverageCommissionPerDelivery.ToString("F2")</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Pending Commission</h5>
+                            <h3>R @Model.PaymentSummary.PendingCommission.ToString("F2")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.OrderId)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.OrderDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Total)
-        </th>
-        <th></th>
-    </tr>
+    <!-- Print Requests Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4>Assigned Print Requests</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.AssignedPrintRequests != null && Model.AssignedPrintRequests.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Request ID</th>
+                                        <th>Customer</th>
+                                        <th>Book</th>
+                                        <th>Pages</th>
+                                        <th>Cost</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model.AssignedPrintRequests)
+                                    {
+                                        <tr>
+                                            <td>@request.PrintingRequestId</td>
+                                            <td>@request.User.UserName</td>
+                                            <td>@request.Book.Title</td>
+                                            <td>@request.TotalPages</td>
+                                            <td>R @request.PrintingCost.ToString("F2")</td>
+                                            <td>
+                                                <span class="badge badge-@(request.Status == "Processing" ? "warning" : request.Status == "Ready" ? "success" : "secondary")">
+                                                    @request.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (request.Status == "Processing")
+                                                {
+                                                    @Html.ActionLink("Mark Ready", "MarkPrintRequestReady", "Employee", new { id = request.PrintingRequestId }, new { @class = "btn btn-sm btn-success" })
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No Action</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No print requests assigned to you.</p>
+                    }
+                </div>
+            </div>
+        </div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.OrderId)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.OrderDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Total)
-        </td>
-        <td>
-            @Html.ActionLink("Details", "Details", new { id=item.OrderId })
-        </td>
-    </tr>
+        <!-- Delivery Assignments Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4>Delivery Assignments</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.DeliveryAssignments != null && Model.DeliveryAssignments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Method</th>
+                                        <th>Commission</th>
+                                        <th>Ready Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var delivery in Model.DeliveryAssignments)
+                                    {
+                                        <tr>
+                                            <td>@delivery.OrderId</td>
+                                            <td>@delivery.Customer.UserName</td>
+                                            <td>@delivery.FulfillmentMethod</td>
+                                            <td>R @((delivery.Total * 0.20m).ToString("F2"))</td>
+                                            <td>@delivery.ReadyForDeliveryDate?.ToString("MM/dd/yyyy")</td>
+                                            <td>
+                                                @if (delivery.FulfillmentMethod == "Delivery")
+                                                {
+                                                    @Html.ActionLink("Mark Delivered", "MarkAsDelivered", "Employee", new { id = delivery.OrderId }, new { @class = "btn btn-sm btn-success", onclick = "return confirm('Mark this order as delivered?');" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.ActionLink("Mark Picked Up", "MarkAsPickedUp", "Employee", new { id = delivery.OrderId }, new { @class = "btn btn-sm btn-success", onclick = "return confirm('Mark this order as picked up?');" })
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No delivery assignments.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Commission Breakdown -->
+    @if (Model.PaymentSummary.CommissionBreakdowns != null && Model.PaymentSummary.CommissionBreakdowns.Any())
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4>Recent Commission Breakdown (Last 30 Days)</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Service Type</th>
+                                        <th>Order Total</th>
+                                        <th>Commission (20%)</th>
+                                        <th>Delivery Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var commission in Model.PaymentSummary.CommissionBreakdowns)
+                                    {
+                                        <tr>
+                                            <td>@commission.OrderId</td>
+                                            <td>@commission.CustomerName</td>
+                                            <td>@commission.ServiceType</td>
+                                            <td>R @commission.OrderTotal.ToString("F2")</td>
+                                            <td><strong>R @commission.CommissionAmount.ToString("F2")</strong></td>
+                                            <td>@commission.DeliveryDate.ToString("MM/dd/yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
 }
-
-</table>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Book2Us</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="bg-primary navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            @Html.ActionLink("Book2Us", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                <ul class="flex-grow-1 navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Books", "Index", "Book", new { area = "" }, new { @class = "nav-link" })</li>
+                    @if (Request.IsAuthenticated)
+                    {
+                        // Customer-specific navigation
+                        if (User.IsInRole("Customer") || string.IsNullOrEmpty(User.Identity.Name) == false)
+                        {
+                            <li>@Html.ActionLink("My Orders", "Index", "Order", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("My Printing Requests", "Index", "CustomerPrinting", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("Wallet", "Index", "Wallet", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("My Profile", "Profile", "Account", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
+                        
+                        // Seller-specific navigation
+                        if (User.IsInRole("Seller"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="sellerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Seller Tools
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="sellerDropdown">
+                                    <li>@Html.ActionLink("Dashboard", "Index", "Seller", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Printing Requests", "Index", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Book Orders", "Index", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>@Html.ActionLink("Manage Books", "Index", "Book", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                </ul>
+                            </li>
+                        }
+                        
+                        // Employee-specific navigation
+                        if (User.IsInRole("Employee"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="employeeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Employee Tools
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="employeeDropdown">
+                                    <li>@Html.ActionLink("Dashboard", "Index", "Employee", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Process Requests", "Index", "PrintingRequest", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Print Orders", "Index", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                </ul>
+                            </li>
+                        }
+                        
+                        // Admin-specific navigation
+                        if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin Panel
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li>@Html.ActionLink("Dashboard", "Index", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("My Profile", "Profile", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Withdrawal Requests", "WithdrawalRequests", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Mock Withdrawal", "MockWithdrawal", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Create Admin", "CreateAdmin", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>@Html.ActionLink("Manage Users", "Users", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                    <li>@Html.ActionLink("Manage Orders", "Orders", "Admin", new { area = "" }, new { @class = "dropdown-item" })
+                                    <li>@Html.ActionLink("System Settings", "Settings", "Admin", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                </ul>
+                            </li>
+                        }
+                        else if (Request.IsAuthenticated)
+                        {
+                            <!-- Debug: User is authenticated but not in Admin role -->
+                            <!-- Current user: @User.Identity.Name -->
+                            <!-- Role check result: @User.IsInRole("Admin") -->
+                        }
+                        
+                        // Banking services (available to authenticated users)
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="bankingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Banking
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bankingDropdown">
+                                <li>@Html.ActionLink("My Accounts", "Index", "Banking", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Add Bank Account", "AddBankAccount", "Banking", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Manage Cards", "Cards", "Banking", new { area = "" }, new { @class = "dropdown-item" })</li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>@Html.ActionLink("Withdrawal History", "WithdrawalHistory", "Wallet", new { area = "" }, new { @class = "dropdown-item" })</li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+                <ul class="navbar-nav">
+                    @Html.Partial("_ShoppingCartPartial")
+                    @Html.Partial("_LoginPartial")
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Book2Us</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    
+    <script>
+        // Ensure dropdowns work properly with Bootstrap 5
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Initialize all dropdowns
+                var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+                var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                    return new bootstrap.Dropdown(dropdownToggleEl);
+                });
+                
+                console.log('Bootstrap 5 dropdown initialization complete');
+                console.log('Found dropdown elements:', dropdownElementList.length);
+                
+                // Test dropdown functionality
+                document.querySelectorAll('.dropdown-toggle').forEach(function(toggle) {
+                    toggle.addEventListener('click', function(e) {
+                        console.log('Dropdown clicked:', e.target);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error initializing dropdowns:', error);
+            }
+        });
+    </script>
+</body>
+</html>

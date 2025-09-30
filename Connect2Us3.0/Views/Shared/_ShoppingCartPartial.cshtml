@@ -1,0 +1,22 @@
+@using book2us.Models
+@{
+    var cart = Session["CartId"] as ShoppingCart;
+    var itemCount = 0;
+    if (cart != null && cart.CartItems != null)
+    {
+        itemCount = cart.CartItems.Sum(item => item.Quantity);
+    }
+}
+
+<li class="nav-item">
+    <a href="@Url.Action("Index", "ShoppingCart")" class="position-relative nav-link" title="Shopping Cart">
+        <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
+        @if (itemCount > 0)
+        {
+            <span class="top-0 position-absolute bg-danger rounded-pill translate-middle start-100 badge">
+                @itemCount
+                <span class="visually-hidden">items in cart</span>
+            </span>
+        }
+    </a>
+</li>

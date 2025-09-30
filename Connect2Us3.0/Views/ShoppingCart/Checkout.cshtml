@@ -6,7 +6,7 @@
 
 <h2>Checkout</h2>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Checkout", "ShoppingCart", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
 
@@ -17,9 +17,15 @@
 
         @if (ViewBag.IsPrintingService == true)
         {
+            var printingDetails = Session["PrintingRequestDetails"] as dynamic;
+            
             <div class="alert alert-info">
                 <strong>📄 Printing Service Order</strong>
                 <p>This order contains printing services. Please select your fulfillment method and provide additional details.</p>
+                @if (printingDetails != null && !string.IsNullOrEmpty(printingDetails.FileName))
+                {
+                    <p><strong>File:</strong> @printingDetails.FileName</p>
+                }
             </div>
             
             <div class="card mb-3">
@@ -30,7 +36,8 @@
                     <div class="form-group">
                         <label class="control-label col-md-3">Total Pages</label>
                         <div class="col-md-9">
-                            <input type="number" name="totalPages" class="form-control" min="1" required />
+                            <input type="number" name="totalPages" class="form-control" min="1" required 
+                                   value="@(printingDetails != null ? printingDetails.TotalPages : 0)" />
                             <small class="text-muted">Enter the total number of pages to be printed</small>
                         </div>
                     </div>
@@ -39,19 +46,40 @@
                         <label class="control-label col-md-3">Fulfillment Method</label>
                         <div class="col-md-9">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="pickup" value="Pickup" checked>
+                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="pickup" value="Pickup" 
+                                       @((printingDetails != null && printingDetails.FulfillmentMethod == "Pickup") || (printingDetails == null || printingDetails.FulfillmentMethod == null) ? "checked" : "")>
                                 <label class="form-check-label" for="pickup">
                                     🏪 Pickup - Free (Pick up at our store location)
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="delivery" value="Delivery">
+                                <input class="form-check-input" type="radio" name="fulfillmentMethod" id="delivery" value="Delivery"
+                                       @(printingDetails != null && printingDetails.FulfillmentMethod == "Delivery" ? "checked" : "")>
                                 <label class="form-check-label" for="delivery">
                                     📦 Delivery - R10.00 (Delivered to your address)
                                 </label>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="form-group" id="deliveryAddressSection" style="display: none;">
+                        <label class="control-label col-md-3">Delivery Address</label>
+                        <div class="col-md-9">
+                            <textarea name="deliveryAddress" class="form-control" rows="3" placeholder="Enter delivery address if different from shipping address">@(printingDetails != null ? printingDetails.DeliveryAddress ?? "" : "")</textarea>
+                            <small class="text-muted">Address for delivery (if different from shipping address)</small>
+                        </div>
+                    </div>
+                    
+                    @if (printingDetails != null && !string.IsNullOrEmpty(printingDetails.CustomerNotes))
+                    {
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Customer Notes</label>
+                            <div class="col-md-9">
+                                <textarea name="customerNotes" class="form-control" rows="2" readonly>@printingDetails.CustomerNotes</textarea>
+                                <small class="text-muted">Notes provided with the printing request</small>
+                            </div>
+                        </div>
+                    }
                     
                     <div class="alert alert-warning">
                         <strong>Pricing:</strong><br />
@@ -168,6 +196,23 @@
             console.log('FirstName:', $('#FirstName').length > 0 ? 'Found' : 'Not found');
             console.log('LastName:', $('#LastName').length > 0 ? 'Found' : 'Not found');
             console.log('Address:', $('#Address').length > 0 ? 'Found' : 'Not found');
+            
+            // Add form submission handler for debugging
+            $('form').on('submit', function(e) {
+                console.log('=== FORM SUBMISSION DETECTED ===');
+                console.log('Form action:', $(this).attr('action'));
+                console.log('Form method:', $(this).attr('method'));
+                
+                // Log form data
+                var formData = new FormData(this);
+                console.log('Form data:');
+                for (var pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
+                // Don't prevent default - let form submit normally
+                console.log('Allowing form to submit...');
+            });
             console.log('City:', $('#City').length > 0 ? 'Found' : 'Not found');
             console.log('State:', $('#State').length > 0 ? 'Found' : 'Not found');
             console.log('PostalCode:', $('#PostalCode').length > 0 ? 'Found' : 'Not found');
@@ -192,31 +237,68 @@
                 console.log('Updated printing cost:', { pages, pagesCost, deliveryCost, totalCost });
             }
             
+            // Function to toggle delivery address section
+            function toggleDeliveryAddress() {
+                var fulfillmentMethod = $('input[name="fulfillmentMethod"]:checked').val();
+                if (fulfillmentMethod === 'Delivery') {
+                    $('#deliveryAddressSection').show();
+                } else {
+                    $('#deliveryAddressSection').hide();
+                }
+            }
+            
             // Setup printing service event handlers
             if ($('input[name="totalPages"]').length > 0) {
                 $('input[name="totalPages"]').on('input', updatePrintingCost);
-                $('input[name="fulfillmentMethod"]').on('change', updatePrintingCost);
+                $('input[name="fulfillmentMethod"]').on('change', function() {
+                    updatePrintingCost();
+                    toggleDeliveryAddress();
+                });
                 
-                // Initial cost calculation
+                // Initial cost calculation and delivery address visibility
                 updatePrintingCost();
+                toggleDeliveryAddress();
             }
             
             // Form validation for printing services
             $('form').on('submit', function(e) {
+                console.log('FORM SUBMISSION DETECTED');
+                console.log('Form action:', $(this).attr('action'));
+                console.log('Form method:', $(this).attr('method'));
+                
+                // Log all form data
+                var formData = new FormData(this);
+                for (var pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
                 if ($('input[name="isPrintingService"]').val() === 'true') {
+                    console.log('Validating printing service form...');
                     var pages = parseInt($('input[name="totalPages"]').val());
+                    console.log('Total pages value:', pages);
+                    
                     if (!pages || pages <= 0) {
                         alert('Please enter a valid number of pages.');
                         e.preventDefault();
                         return false;
                     }
                     
-                    if (!$('input[name="fulfillmentMethod"]:checked').val()) {
+                    var fulfillmentMethod = $('input[name="fulfillmentMethod"]:checked').val();
+                    console.log('Fulfillment method:', fulfillmentMethod);
+                    
+                    if (!fulfillmentMethod) {
                         alert('Please select a fulfillment method.');
                         e.preventDefault();
                         return false;
                     }
+                    
+                    console.log('Printing service validation passed, allowing form submission');
+                } else {
+                    console.log('Not a printing service, allowing form submission');
                 }
+                
+                // Allow form to submit normally
+                console.log('Form submission proceeding...');
             });
 
             // Store original values for comparison

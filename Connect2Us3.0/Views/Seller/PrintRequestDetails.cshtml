@@ -1,0 +1,255 @@
+@model book2us.Models.PrintingRequest
+
+@{
+    ViewBag.Title = "Print Request Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-print"></i> Print Request Details</h2>
+                <div>
+                    @Html.ActionLink("Back to Printing Requests", "PrintingRequests", null, new { @class = "btn btn-outline-secondary" })
+                    @Html.ActionLink("Dashboard", "Index", null, new { @class = "btn btn-outline-primary" })
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Request Information Card -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4><i class="fas fa-info-circle"></i> Request Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><strong>Request ID:</strong></h6>
+                                    <p class="text-primary">#@Model.PrintingRequestId</p>
+
+                                    <h6><strong>Customer:</strong></h6>
+                                    <p>
+                                        @(Model.User?.UserName ?? "Unknown Customer")
+                                        @if (!string.IsNullOrEmpty(Model.User?.Email))
+                                        {
+                                            <br><small class="text-muted">@Model.User.Email</small>
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.User?.PhoneNumber))
+                                        {
+                                            <br><small class="text-muted"><i class="fas fa-phone"></i> @Model.User.PhoneNumber</small>
+                                        }
+                                    </p>
+
+                                    <h6><strong>Document Type:</strong></h6>
+                                    <p>
+                                        @if (Model.Book?.Title?.Contains("PDF Printing") == true)
+                                        {
+                                            <span class="badge badge-info badge-lg"><i class="fas fa-file-pdf"></i> PDF Document</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary badge-lg"><i class="fas fa-book"></i> @(Model.Book?.Title ?? "Book")</span>
+                                        }
+                                    </p>
+
+                                    <h6><strong>Request Date:</strong></h6>
+                                    <p>@Model.RequestDate.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><strong>Pages:</strong></h6>
+                                    <p class="h5 text-primary">@Model.TotalPages pages</p>
+
+                                    <h6><strong>Quantity:</strong></h6>
+                                    <p class="h5 text-success">@Model.Quantity copies</p>
+
+                                    <h6><strong>Printing Cost:</strong></h6>
+                                    <p class="h4 text-success">R @(Model.PrintingCost?.ToString("F2") ?? "Pending")</p>
+
+                                    <h6><strong>Current Status:</strong></h6>
+                                    <p>
+                                        @switch (Model.Status)
+                                        {
+                                            case "Processing":
+                                                <span class="badge badge-warning badge-lg"><i class="fas fa-cog fa-spin"></i> Processing</span>
+                                                break;
+                                            case "Ready":
+                                                <span class="badge badge-success badge-lg"><i class="fas fa-check"></i> Ready</span>
+                                                break;
+                                            case "Completed":
+                                                <span class="badge badge-primary badge-lg"><i class="fas fa-check-double"></i> Completed</span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge badge-danger badge-lg"><i class="fas fa-times"></i> Cancelled</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-secondary badge-lg">@Model.Status</span>
+                                                break;
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5><i class="fas fa-tasks"></i> Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Status == "Processing")
+                            {
+                                <div class="mb-3">
+                                    <h6>Mark as Ready:</h6>
+                                    <p class="text-muted small">Mark this print job as ready for @(Model.FulfillmentMethod?.ToLower() ?? "fulfillment")</p>
+                                    @using (Html.BeginForm("UpdatePrintRequestStatus", "Seller", new { id = Model.PrintingRequestId, status = "Ready" }, FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Mark this print request as ready?');">
+                                            <i class="fas fa-check"></i> Mark Ready
+                                        </button>
+                                    }
+                                </div>
+                            }
+
+                            @if (Model.Status == "Ready" && Model.FulfillmentMethod == "Pickup")
+                            {
+                                <div class="mb-3">
+                                    <h6>Customer Pickup:</h6>
+                                    <p class="text-muted small">Mark as picked up by customer</p>
+                                    @using (Html.BeginForm("UpdatePrintRequestStatus", "Seller", new { id = Model.PrintingRequestId, status = "Completed" }, FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-primary btn-block" onclick="return confirm('Confirm customer has picked up the order?');">
+                                            <i class="fas fa-handshake"></i> Mark Picked Up
+                                        </button>
+                                    }
+                                </div>
+                            }
+
+                            @if (Model.Status == "Ready" && Model.FulfillmentMethod == "Delivery")
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-truck"></i>
+                                    <strong>Ready for Delivery</strong>
+                                    <p class="mb-0 small">An employee will handle the delivery</p>
+                                </div>
+                            }
+
+                            @if (Model.Status == "Completed")
+                            {
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-double"></i>
+                                    <strong>Completed</strong>
+                                    <p class="mb-0 small">This request has been fulfilled</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fulfillment Details Card -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-shipping-fast"></i> Fulfillment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><strong>Fulfillment Method:</strong></h6>
+                                    <p>
+                                        @if (Model.FulfillmentMethod == "Delivery")
+                                        {
+                                            <span class="text-primary"><i class="fas fa-truck"></i> Delivery</span>
+                                            <br><small class="text-muted">Employee will deliver to customer</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success"><i class="fas fa-store"></i> Pickup</span>
+                                            <br><small class="text-muted">Customer will collect from you</small>
+                                        }
+                                    </p>
+
+                                    @if (Model.FulfillmentMethod == "Delivery" && !string.IsNullOrEmpty(Model.DeliveryAddress))
+                                    {
+                                        <h6><strong>Delivery Address:</strong></h6>
+                                        <p class="text-muted">@Model.DeliveryAddress</p>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><strong>Assignment Details:</strong></h6>
+                                    <p>
+                                        @if (Model.AssignedSeller != null)
+                                        {
+                                            <span class="text-success">Assigned to You</span>
+                                            <br><small class="text-muted">@Model.AssignedSeller.UserName</small>
+                                        }
+                                        else if (Model.AssignedEmployee != null)
+                                        {
+                                            <span class="text-info">Assigned to Employee: @Model.AssignedEmployee.UserName</span>
+                                            @if (!string.IsNullOrEmpty(Model.AssignedEmployee.Email))
+                                            {
+                                                <br><small class="text-muted">@Model.AssignedEmployee.Email</small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not assigned</span>
+                                        }
+                                    </p>
+
+                                    <h6><strong>Your Earnings:</strong></h6>
+                                    <p class="text-success">
+                                        <strong>R @(Model.PrintingCost?.ToString("F2") ?? "Pending")</strong>
+                                        <br><small class="text-muted">Commission from this print job</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-lg {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+    
+    .card-header i {
+        margin-right: 8px;
+    }
+    
+    .alert i {
+        margin-right: 8px;
+    }
+</style>

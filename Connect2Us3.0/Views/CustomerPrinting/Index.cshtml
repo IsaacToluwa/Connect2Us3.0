@@ -1,0 +1,107 @@
+@model IEnumerable<book2us.Models.PrintingRequest>
+
+@{
+    ViewBag.Title = "My Printing Requests";
+}
+
+<h2>My Printing Requests</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="mb-3">
+    @Html.ActionLink("📄 Upload PDF for Printing", "CreateRequest", "CustomerPrinting", null, new { @class = "btn btn-success btn-lg me-2" })
+    @Html.ActionLink("View Available Books", "Index", "Book", null, new { @class = "btn btn-primary" })
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>📄 No Printing Requests Yet</h4>
+        <p>You haven't made any printing requests yet.</p>
+        <p>You can:</p>
+        <ul>
+            <li><strong>Upload your own PDF</strong> - Use the "Upload PDF for Printing" button above</li>
+            <li><strong>Request printing for existing books</strong> - Browse our books and request printing services</li>
+        </ul>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th>Request ID</th>
+            <th>Book Title</th>
+            <th>Quantity</th>
+            <th>Total Pages</th>
+            <th>Fulfillment</th>
+            <th>Status</th>
+            <th>Request Date</th>
+            <th>Actions</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    #@item.PrintingRequestId
+                </td>
+                <td>
+                    @if (item.Book != null)
+                    {
+                        @item.Book.Title
+                    }
+                    else
+                    {
+                        <span class="text-danger">Book not available</span>
+                    }
+                </td>
+                <td>
+                    @item.Quantity
+                </td>
+                <td>
+                    @item.TotalPages
+                </td>
+                <td>
+                    @item.FulfillmentMethod
+                </td>
+                <td>
+                    @switch (item.Status)
+                    {
+                        case "Pending":
+                            <span class="bg-warning badge">Pending</span>
+                            break;
+                        case "Processing":
+                            <span class="bg-info badge">Processing</span>
+                            break;
+                        case "Ready":
+                            <span class="bg-primary badge">Ready</span>
+                            break;
+                        case "Delivered":
+                            <span class="bg-success badge">Delivered</span>
+                            break;
+                        case "PickedUp":
+                            <span class="bg-success badge">Picked Up</span>
+                            break;
+                        case "Cancelled":
+                            <span class="bg-danger badge">Cancelled</span>
+                            break;
+                        default:
+                            <span class="bg-secondary badge">@item.Status</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    @item.RequestDate.ToString("MM/dd/yyyy")
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = item.PrintingRequestId }, new { @class = "btn btn-sm btn-info" })
+                </td>
+            </tr>
+        }
+    </table>
+}

@@ -59,7 +59,7 @@
                             @if (transaction.Fee > 0)
                             {
                                 <span class="transaction-fee">
-                                    Fee: $@transaction.Fee.ToString("F2")
+                                    Fee: $@transaction.Fee.Value.ToString("F2")
                                 </span>
                             }
                             <span class="transaction-status @GetStatusClass(transaction.Status)">
@@ -290,8 +290,7 @@
         justify-content: center;
         gap: 15px;
     }
-
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .history-header {
             flex-direction: column;
             text-align: center;

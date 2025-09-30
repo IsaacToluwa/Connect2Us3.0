@@ -1,58 +1,58 @@
-@model book2us.Models.User
+@model book2us.Controllers.DashboardViewModel
 
 @{
     ViewBag.Title = "My Dashboard";
 }
 
-<div class="container-fluid py-4">
+<div class="py-4 container-fluid">
     <div class="row">
         <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+            <div class="shadow-sm card">
+                <div class="text-center card-body">
+                    @if (!string.IsNullOrEmpty(Model.User.ProfilePicture))
                     {
-                        <img src="@Model.ProfilePicture" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;" alt="Profile Picture" />
+                        <img src="@Model.User.ProfilePicture" class="mb-3 rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" alt="Profile Picture" />
                     }
                     else
                     {
-                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                        <i class="text-primary bi bi-person-circle fs-1"></i>
                     }
-                    <h5 class="card-title mt-3">@Model.Username</h5>
-                    <p class="text-muted mb-1">@Model.Role</p>
-                    @if (!string.IsNullOrEmpty(Model.FirstName) || !string.IsNullOrEmpty(Model.LastName))
+                    <h5 class="mt-3 card-title">@Model.User.Username</h5>
+                    <p class="mb-1 text-muted">@Model.User.Role</p>
+                    @if (!string.IsNullOrEmpty(Model.User.FirstName) || !string.IsNullOrEmpty(Model.User.LastName))
                     {
-                        <p class="text-muted mb-1"><small>@Model.FirstName @Model.LastName</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.FirstName @Model.User.LastName</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.Email))
+                    @if (!string.IsNullOrEmpty(Model.User.Email))
                     {
-                        <p class="text-muted mb-1"><small>@Model.Email</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.Email</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.Phone))
+                    @if (!string.IsNullOrEmpty(Model.User.Phone))
                     {
-                        <p class="text-muted mb-1"><small>@Model.Phone</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.Phone</small></p>
                     }
-                    @if (Model.Age.HasValue)
+                    @if (Model.User.Age.HasValue)
                     {
-                        <p class="text-muted mb-1"><small>Age: @Model.Age</small></p>
+                        <p class="mb-1 text-muted"><small>Age: @Model.User.Age</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.Gender))
+                    @if (!string.IsNullOrEmpty(Model.User.Gender))
                     {
-                        <p class="text-muted mb-1"><small>@Model.Gender</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.Gender</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.Address))
+                    @if (!string.IsNullOrEmpty(Model.User.Address))
                     {
-                        <p class="text-muted mb-1"><small>@Model.Address</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.Address</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.City) || !string.IsNullOrEmpty(Model.State))
+                    @if (!string.IsNullOrEmpty(Model.User.City) || !string.IsNullOrEmpty(Model.User.State))
                     {
-                        <p class="text-muted mb-1"><small>@Model.City, @Model.State @Model.PostalCode</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.City, @Model.User.State @Model.User.PostalCode</small></p>
                     }
-                    @if (!string.IsNullOrEmpty(Model.Country))
+                    @if (!string.IsNullOrEmpty(Model.User.Country))
                     {
-                        <p class="text-muted mb-1"><small>@Model.Country</small></p>
+                        <p class="mb-1 text-muted"><small>@Model.User.Country</small></p>
                     }
                     <hr>
-                    <div class="d-grid gap-2">
+                    <div class="gap-2 d-grid">
                         @Html.ActionLink("Edit Profile", "Profile", "Account", null, new { @class = "btn btn-outline-primary" })
                         @Html.ActionLink("My Orders", "Index", "Order", null, new { @class = "btn btn-outline-secondary" })
                         @Html.ActionLink("My Wallet", "Index", "Wallet", null, new { @class = "btn btn-outline-success" })
@@ -64,50 +64,50 @@
         <div class="col-md-9">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card bg-primary text-white">
+                    <div class="bg-primary text-white card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <h6 class="card-title">Total Orders</h6>
-                                    <h3 class="mb-0">12</h3>
+                                    <h3 class="mb-0">@Model.TotalOrders</h3>
                                 </div>
-                                <i class="bi bi-cart4 fs-1 opacity-75"></i>
+                                <i class="opacity-75 bi bi-cart4 fs-1"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-4">
-                    <div class="card bg-success text-white">
+                    <div class="bg-success text-white card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <h6 class="card-title">Wallet Balance</h6>
-                                    <h3 class="mb-0">$250.00</h3>
+                                    <h3 class="mb-0">R@(Model.WalletBalance.ToString("F2"))</h3>
                                 </div>
-                                <i class="bi bi-wallet2 fs-1 opacity-75"></i>
+                                <i class="opacity-75 bi bi-wallet2 fs-1"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-4">
-                    <div class="card bg-warning text-white">
+                    <div class="bg-warning text-white card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <h6 class="card-title">Active Listings</h6>
-                                    <h3 class="mb-0">5</h3>
+                                    <h3 class="mb-0">@Model.TotalPrintingRequests</h3>
                                 </div>
-                                <i class="bi bi-book fs-1 opacity-75"></i>
+                                <i class="opacity-75 bi bi-book fs-1"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="row mt-4">
-                <div class="col-12">
+            <div class="mt-4 row">
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">
@@ -116,36 +116,63 @@
                         </div>
                         <div class="card-body">
                             <div class="list-group">
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Order #1234 - "Introduction to Programming"</h6>
-                                        <small class="text-muted">2 days ago</small>
+                                @foreach (var activity in Model.RecentActivity)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between w-100">
+                                            <h6 class="mb-1">@activity.Title</h6>
+                                            <small class="text-muted">@activity.Date.ToString("MMM dd")</small>
+                                        </div>
+                                        <p class="mb-1">@activity.Description</p>
                                     </div>
-                                    <p class="mb-1">Status: Delivered</p>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Wallet Deposit - $50.00</h6>
-                                        <small class="text-muted">3 days ago</small>
+                                }
+                                @if (!Model.RecentActivity.Any())
+                                {
+                                    <div class="list-group-item">
+                                        <p class="mb-0 text-muted">No recent activity found.</p>
                                     </div>
-                                    <p class="mb-1">Status: Completed</p>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">New Listing - "Data Structures Book"</h6>
-                                        <small class="text-muted">5 days ago</small>
-                                    </div>
-                                    <p class="mb-1">Status: Active</p>
-                                </div>
+                                }
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Printing Requests -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-printer"></i> Recent Printing Requests
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.RecentPrintingRequests != null && Model.RecentPrintingRequests.Any())
+                            {
+                                <div class="list-group">
+                                    @foreach (var request in Model.RecentPrintingRequests)
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <h6 class="mb-1">Request #@request.PrintingRequestId</h6>
+                                                <small class="text-muted">@request.RequestDate.ToString("MMM dd")</small>
+                                            </div>
+                                            <p class="mb-1">Status: <span class="badge bg-@(request.Status == "Completed" ? "success" : request.Status == "In Progress" ? "warning" : "secondary")">@request.Status</span></p>
+                                            <p class="mb-0">Pages: @request.TotalPages, Cost: R@(request.PrintingCost.ToString("F2"))</p>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="mb-0 text-muted">No printing requests found.</p>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
             
-            @if (User.IsInRole("Seller"))
+            @if (Model.User.Role == "Seller")
             {
-                <div class="row mt-4">
+                <div class="mt-4 row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
@@ -159,7 +186,7 @@
                                         @Html.ActionLink("Manage Listings", "Index", "Seller", null, new { @class = "btn btn-outline-primary w-100 mb-2" })
                                     </div>
                                     <div class="col-md-6">
-                                        @Html.ActionLink("Printing Requests", "Index", "PrintingRequest", null, new { @class = "btn btn-outline-info w-100 mb-2" })
+                                        @Html.ActionLink("Printing Requests (" + Model.TotalPrintingRequests + ")", "Index", "PrintingRequest", null, new { @class = "btn btn-outline-info w-100 mb-2" })
                                     </div>
                                 </div>
                             </div>

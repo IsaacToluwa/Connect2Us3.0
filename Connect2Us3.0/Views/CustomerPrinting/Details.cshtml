@@ -1,0 +1,163 @@
+@model book2us.Models.PrintingRequest
+
+@{
+    ViewBag.Title = "Printing Request Details";
+}
+
+<h2>Printing Request Details</h2>
+
+<div>
+    <h4>Request #@Model.PrintingRequestId</h4>
+    <hr />
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Book Information</h4>
+            <dl class="dl-horizontal">
+                <dt>Title:</dt>
+                <dd>@(Model.Book?.Title ?? "Book not available")</dd>
+                
+                <dt>Author:</dt>
+                <dd>@(Model.Book?.Author ?? "N/A")</dd>
+                
+                <dt>Quantity:</dt>
+                <dd>@Model.Quantity copies</dd>
+                
+                <dt>Total Pages:</dt>
+                <dd>@Model.TotalPages pages</dd>
+            </dl>
+        </div>
+        
+        <div class="col-md-6">
+            <h4>Request Details</h4>
+            <dl class="dl-horizontal">
+                <dt>Status:</dt>
+                <dd>
+                    @switch (Model.Status)
+                    {
+                        case "Pending":
+                            <span class="label label-warning">Pending</span>
+                            break;
+                        case "Processing":
+                            <span class="label label-info">Processing</span>
+                            break;
+                        case "Ready":
+                            <span class="label label-primary">Ready</span>
+                            break;
+                        case "Delivered":
+                            <span class="label label-success">Delivered</span>
+                            break;
+                        case "PickedUp":
+                            <span class="label label-success">Picked Up</span>
+                            break;
+                        case "Cancelled":
+                            <span class="label label-danger">Cancelled</span>
+                            break;
+                        default:
+                            <span class="label label-default">@Model.Status</span>
+                            break;
+                    }
+                </dd>
+                
+                <dt>Request Date:</dt>
+                <dd>@Model.RequestDate.ToString("MM/dd/yyyy HH:mm")</dd>
+                
+                <dt>Fulfillment Method:</dt>
+                <dd>@Model.FulfillmentMethod</dd>
+                
+                @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+                {
+                    <dt>Delivery Address:</dt>
+                    <dd>@Model.DeliveryAddress</dd>
+                }
+            </dl>
+        </div>
+    </div>
+    
+    <hr />
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Cost Information</h4>
+            <dl class="dl-horizontal">
+                <dt>Printing Cost:</dt>
+                <dd>@Html.Raw(string.Format("{0:c}", Model.PrintingCost))</dd>
+                
+                <dt>Delivery Commission:</dt>
+                <dd>@Html.Raw(string.Format("{0:c}", Model.DeliveryCommission))</dd>
+                
+                @if (Model.Book != null)
+                {
+                    <dt>Book Cost:</dt>
+                    <dd>@Html.Raw(string.Format("{0:c}", Model.Book.Price * Model.Quantity))</dd>
+                    
+                    <dt><strong>Total Estimated Cost:</strong></dt>
+                    <dd><strong>@Html.Raw(string.Format("{0:c}", Model.PrintingCost + Model.DeliveryCommission + (Model.Book.Price * Model.Quantity)))</strong></dd>
+                }
+            </dl>
+        </div>
+        
+        <div class="col-md-6">
+            <h4>Assignment Information</h4>
+            <dl class="dl-horizontal">
+                @if (Model.AssignedDate.HasValue)
+                {
+                    <dt>Assigned Date:</dt>
+                    <dd>@Model.AssignedDate.Value.ToString("MM/dd/yyyy HH:mm")</dd>
+                }
+                
+                @if (Model.AssignedEmployee != null)
+                {
+                    <dt>Assigned Employee:</dt>
+                    <dd>@Model.AssignedEmployee.UserName</dd>
+                }
+                
+                @if (Model.AssignedSeller != null)
+                {
+                    <dt>Assigned Seller:</dt>
+                    <dd>@Model.AssignedSeller.UserName</dd>
+                }
+                
+                @if (Model.ReadyDate.HasValue)
+                {
+                    <dt>Ready Date:</dt>
+                    <dd>@Model.ReadyDate.Value.ToString("MM/dd/yyyy HH:mm")</dd>
+                }
+                
+                @if (Model.DeliveryDate.HasValue)
+                {
+                    <dt>Delivery Date:</dt>
+                    <dd>@Model.DeliveryDate.Value.ToString("MM/dd/yyyy HH:mm")</dd>
+                }
+            </dl>
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(Model.CustomerNotes))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Your Notes</h4>
+                <p>@Model.CustomerNotes</p>
+            </div>
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.EmployeeNotes))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Staff Notes</h4>
+                <p>@Model.EmployeeNotes</p>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        @Html.ActionLink("Back to My Requests", "Index", null, new { @class = "btn btn-default" })
+        @Html.ActionLink("View Available Books", "Index", "Book", null, new { @class = "btn btn-primary" })
+    </div>
+</div>

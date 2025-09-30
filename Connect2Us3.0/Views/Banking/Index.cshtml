@@ -1,0 +1,327 @@
+@model book2us.Models.BankingViewModel
+
+@{
+    ViewBag.Title = "Banking Dashboard";
+}
+
+<h2>Banking Dashboard</h2>
+
+<div class="banking-dashboard">
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="action-buttons">
+            <a href="@Url.Action("AddBankAccount", "Banking")" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Bank Account
+            </a>
+            <a href="@Url.Action("AddCard", "Banking")" class="btn btn-primary">
+                <i class="fas fa-credit-card"></i> Add Credit Card
+            </a>
+            <a href="@Url.Action("BankAccounts", "Banking")" class="btn btn-outline-secondary">
+                <i class="fas fa-university"></i> Manage Accounts
+            </a>
+            <a href="@Url.Action("Cards", "Banking")" class="btn btn-outline-secondary">
+                <i class="fas fa-credit-card"></i> Manage Cards
+            </a>
+        </div>
+    </div>
+
+    <!-- Bank Accounts Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <h4><i class="fas fa-university"></i> Your Bank Accounts</h4>
+            <span class="badge badge-primary">@Model.BankAccounts.Count() accounts</span>
+        </div>
+
+        @if (Model.BankAccounts != null && Model.BankAccounts.Any())
+        {
+            <div class="bank-accounts-summary">
+                @foreach (var account in Model.BankAccounts.Take(3))
+                {
+                    <div class="account-summary-card">
+                        <div class="account-header">
+                            <h5>@account.BankName</h5>
+                            <span class="badge @(account.IsActive ? "badge-success" : "badge-secondary")">
+                                @(account.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                        <div class="account-details">
+                            <p><strong>Account Holder:</strong> @account.AccountHolderName</p>
+                            <p><strong>Account Number:</strong> ****@account.AccountNumber.Substring(account.AccountNumber.Length - 4)</p>
+                            <p><strong>Type:</strong> @account.AccountType Account</p>
+                        </div>
+                        <div class="account-meta">
+                            <small>Added: @account.CreatedDate.ToString("MMM dd, yyyy")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            if (Model.BankAccounts.Count() > 3)
+            {
+                <div class="text-center mt-3">
+                    <a href="@Url.Action("BankAccounts", "Banking")" class="btn btn-outline-primary">
+                        View All Accounts (@Model.BankAccounts.Count())
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-university fa-3x text-muted"></i>
+                <h5>No bank accounts added yet</h5>
+                <p>Start by adding your first bank account to manage your finances.</p>
+                <a href="@Url.Action("AddBankAccount", "Banking")" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Bank Account
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Cards Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <h4><i class="fas fa-credit-card"></i> Your Credit Cards</h4>
+            <span class="badge badge-primary">@Model.CardDetails.Count() cards</span>
+        </div>
+
+        @if (Model.CardDetails != null && Model.CardDetails.Any())
+        {
+            <div class="cards-summary">
+                @foreach (var card in Model.CardDetails.Take(3))
+                {
+                    <div class="card-summary-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="card-info">
+                                <h5>@card.CardType Card</h5>
+                                <p class="card-number">**** @card.LastFourDigits</p>
+                            </div>
+                            <div class="card-status">
+                                @if (card.IsDefault)
+                                {
+                                    <span class="badge badge-success">Default</span>
+                                }
+                                <span class="badge @(card.IsActive ? "badge-success" : "badge-secondary")">
+                                    @(card.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-details">
+                            <p><strong>Cardholder:</strong> @card.CardHolderName</p>
+                            <p><strong>Expires:</strong> @card.ExpiryMonth/@card.ExpiryYear</p>
+                        </div>
+                        <div class="card-meta">
+                            <small>Added: @card.CreatedDate.ToString("MMM dd, yyyy")</small>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            if (Model.CardDetails.Count() > 3)
+            {
+                <div class="text-center mt-3">
+                    <a href="@Url.Action("Cards", "Banking")" class="btn btn-outline-primary">
+                        View All Cards (@Model.CardDetails.Count())
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-credit-card fa-3x text-muted"></i>
+                <h5>No credit cards added yet</h5>
+                <p>Add your credit cards for easy payment management.</p>
+                <a href="@Url.Action("AddCard", "Banking")" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Credit Card
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Back to Wallet -->
+    <div class="back-to-wallet">
+        <a href="@Url.Action("Index", "Wallet")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Wallet
+        </a>
+    </div>
+</div>
+
+<style>
+    .banking-dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .quick-actions {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .section-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-header h4 {
+        margin: 0;
+        color: #343a40;
+    }
+
+    .bank-accounts-summary,
+    .cards-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .account-summary-card,
+    .card-summary-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .account-summary-card:hover,
+    .card-summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .account-header,
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .card-header {
+        align-items: center;
+    }
+
+    .card-icon {
+        margin-right: 10px;
+        color: #007bff;
+    }
+
+    .card-info h5 {
+        margin: 0;
+        color: #343a40;
+    }
+
+    .card-number {
+        margin: 0;
+        color: #6c757d;
+        font-family: monospace;
+    }
+
+    .account-details,
+    .card-details {
+        margin-bottom: 15px;
+    }
+
+    .account-details p,
+    .card-details p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+
+    .account-meta,
+    .card-meta {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        margin-bottom: 15px;
+    }
+
+    .empty-state h5 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+
+    .empty-state p {
+        margin-bottom: 20px;
+    }
+
+    .back-to-wallet {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    @@media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-buttons .btn {
+            width: 200px;
+        }
+
+        .bank-accounts-summary,
+        .cards-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+    }
+</style>

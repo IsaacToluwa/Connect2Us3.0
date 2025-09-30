@@ -1,4 +1,4 @@
-@model IEnumerable<book2us.Models.ApplicationUser>
+@model book2us.Controllers.AdminDashboardViewModel
 
 @{
     ViewBag.Title = "Admin Dashboard";
@@ -6,24 +6,112 @@
 
 <h2>Admin Dashboard</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<!-- Analytics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h3>@Model.TotalUsers</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Books</h5>
+                <h3>@Model.TotalBooks</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <h3>@Model.TotalOrders</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Print Requests</h5>
+                <h3>@Model.TotalPrintRequests</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h3>R @Model.TotalRevenue.ToString("N2")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Monthly Revenue</h5>
+                <h3>R @Model.MonthlyRevenue.ToString("N2")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Pending Withdrawals</h5>
+                <h3>@Model.PendingWithdrawals</h3>
+                <a href="@Url.Action("WithdrawalRequests")" class="btn btn-sm btn-primary">View Requests</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Buttons -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="btn-group" role="group">
+            @Html.ActionLink("View Profile", "Profile", null, new { @class = "btn btn-info" })
+            @Html.ActionLink("Mock Withdrawal", "MockWithdrawal", null, new { @class = "btn btn-warning" })
+            @Html.ActionLink("Manage Banking", "Banking", null, new { @class = "btn btn-secondary" })
+            @Html.ActionLink("Create Admin", "CreateAdmin", null, new { @class = "btn btn-success" })
+        </div>
+    </div>
+</div>
+
+<h3>User Management</h3>
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.UserName)
+            Username
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            Email
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Role)
+            Role
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
+@foreach (var item in Model.RecentUsers) {
     <tr>
         <td>
             @Html.DisplayFor(modelItem => item.UserName)
@@ -43,3 +131,67 @@
 }
 
 </table>
+
+<h3>Recent Orders</h3>
+<table class="table">
+    <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Total Amount</th>
+        <th>Order Date</th>
+        <th>Status</th>
+    </tr>
+
+@foreach (var item in Model.RecentOrders) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.OrderId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserName)
+        </td>
+        <td>
+            R @Html.DisplayFor(modelItem => item.TotalAmount)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.OrderDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+    </tr>
+}
+
+</table>
+
+@if (Model.PendingWithdrawalRequests.Any())
+{
+    <h3>Pending Withdrawal Requests</h3>
+    <table class="table">
+        <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Requested Date</th>
+            <th>Bank Account</th>
+            <th>Action</th>
+        </tr>
+        @foreach (var item in Model.PendingWithdrawalRequests)
+        {
+            <tr>
+                <td>@item.User.UserName</td>
+                <td>R @item.Amount.ToString("N2")</td>
+                <td>@item.RequestedDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.BankAccount.BankName - @item.BankAccount.AccountNumber</td>
+                <td>
+                    @using (Html.BeginForm("ProcessWithdrawal", "Admin", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.WithdrawalRequestId" />
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}
